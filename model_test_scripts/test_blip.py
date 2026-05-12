@@ -1,6 +1,10 @@
-# Loads the BLIP image captioning model and generates a natural language 
+# Loads the BLIP image captioning model and generates a natural language
 # description of an image. That description is then embedded and stored
 # exactly like a text note - making images semantically searchable.
+
+# Silence warnings about missing model files since we're using local cache
+import os
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
@@ -38,7 +42,7 @@ except Exception as e:
     print(f"\n BLIP failed to load: {e}")
     sys.exit(1)
 
-# STEP 3: Generate a caption 
+# STEP 3: Generate a caption
 print(f"\n STEP 3: Generating caption for '{IMAGE_FILE}' ")
 
 start = time.time()
@@ -52,7 +56,7 @@ caption_time = time.time() - start
 print(f"\nCaption generated in {caption_time:.1f} seconds")
 print(f"\nCaption: \"{caption}\"")
 
-# STEP 4: Generate a conditional caption 
+# STEP 4: Generate a conditional caption
 # Prompt the model with a starting phrase. EG: "what creative elements are in this image?"
 print(f"\n STEP 4: Conditional caption (prompted) ")
 
@@ -90,14 +94,15 @@ print(f"  Embedding shape:     {embedding.shape}")
 # import torch
 # from PIL import Image
 # from sentence_transformers import SentenceTransformer
-#
-# IMAGE_FILE = "test_image.jpg"  # update this
-#
+
+# #
+# # IMAGE_FILE = "test_image.jpg"  # update this
+# #
 # model, preprocess = clip.load("ViT-B/32", device="cpu")
 # image = preprocess(Image.open(IMAGE_FILE)).unsqueeze(0)
-#
+
 # with torch.no_grad():
 #     image_features = model.encode_image(image)
 #     image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-#
+
 # print(f"Image embedding shape: {image_features.shape}")

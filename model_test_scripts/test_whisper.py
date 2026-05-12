@@ -6,7 +6,7 @@ import os
 
 AUDIO_FILE = "test_audio.mp4"
 
-# STEP 1: Check the file exists 
+# STEP 1: Check the file exists
 print("\n STEP 1: Checking audio file ")
 
 if not os.path.exists(AUDIO_FILE):
@@ -17,7 +17,9 @@ file_size_mb = os.path.getsize(AUDIO_FILE) / (1024 * 1024)
 print(f"Found: {AUDIO_FILE} ({file_size_mb:.1f} MB)")
 
 # STEP 2: Load Whisper model
-print("\n STEP 2: Loading Whisper 'base' model ") #fast, okay accuracy compared to "tiny" and "small" models
+print(
+    "\n STEP 2: Loading Whisper 'base' model "
+)  # fast, okay accuracy compared to "tiny" and "small" models
 
 start = time.time()
 model = whisper.load_model("base")
@@ -62,7 +64,9 @@ char_count = len(result["text"])
 print(f"Transcript stats:")
 print(f"  Words: {word_count}")
 print(f"  Characters: {char_count}")
-print(f"  Ready to embed: {'Yes' if word_count > 3 else 'Too short - record a longer memo'}")
+print(
+    f"  Ready to embed: {'Yes' if word_count > 3 else 'Too short - record a longer memo'}"
+)
 
 # STEP 7: Record your findings ─
 print(f"\n STEP 7: Test Results ")
