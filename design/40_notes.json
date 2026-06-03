@@ -1,0 +1,405 @@
+{
+  "dataset": {
+    "name": "echo_ground_truth_v1",
+    "topic": "Creative writing",
+    "description": "40 notes as they would actually exist in a working creative's second brain; half-finished article drafts, voice memos with filler words and trailing thoughts, image-sourced quotes, mood board captions, unconnected observations about daily life, and fragments that go nowhere. Semantic relationships span all three tiers, including genuine NONE pairs where no connection exists.",
+    "version": "1.0",
+    "note_count": 40,
+    "annotation_schema": {
+      "STRONG": "The core subject is the same or directly builds on the same idea. A user would almost certainly want to navigate from one note to the other.",
+      "WEAK": "The notes share a theme or domain but address different aspects of it. The connection is plausible but not the first thing a user would look for.",
+      "NONE": "No meaningful connection. A user navigating from one note would not expect to arrive at the other."
+    },
+    "note_types_used": {
+      "text": "Raw typed note: body is the direct content",
+      "audio": "Voice memo: body is the Whisper transcript, embedding_text includes transcript",
+      "image": "Embedded image: body is user annotation (may be null), embedding_text is concatenation of BLIP caption + Surya OCR text + body"
+    },
+    "clusters": {
+      "C1": "Narrative structure and story architecture",
+      "C2": "Character, voice, and dialogue",
+      "C3": "Language, style, and sentence-level craft",
+      "C4": "Creative process, habits, and blocks",
+      "C5": "Quoted material — typed, photographed, or recorded",
+      "C6": "Half-formed article and essay drafts",
+      "C7": "Unconnected daily life observations and thoughts",
+      "C8": "Mood board images and visual inspiration"
+    }
+  },
+
+  "notes": [
+    {
+      "id": "n01",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n02",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n03",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n04",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n05",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n06",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n07",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n08",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n08",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n09",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n10",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n11",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n12",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n13",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n14",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n15",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n16",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n17",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n18",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n19",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n20",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n21",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n22",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n23",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n24",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n25",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n26",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n27",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n28",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n29",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n30",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n31",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n32",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n33",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n34",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n35",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n36",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n37",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n38",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n39",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    },
+    {
+      "id": "n40",
+      "cluster": "",
+      "note_type": "",
+      "title": "",
+      "body": "",
+      "embedding_text": ""
+    }
+  ],
+
+  "annotations": [
+    {"id": "ann001", "note_a": "n01", "note_b": "n03", "relationship": "STRONG", "justification": ""},
+    {"id": "ann002", "note_a": "n01", "note_b": "n05", "relationship": "STRONG", "justification": ""},
+    {"id": "ann003", "note_a": "n02", "note_b": "n03", "relationship": "STRONG", "justification": ""},
+    {"id": "ann004", "note_a": "n03", "note_b": "n04", "relationship": "STRONG", "justification": ""},
+    {"id": "ann005", "note_a": "n06", "note_b": "n08", "relationship": "STRONG", "justification": ""},
+    {"id": "ann006", "note_a": "n06", "note_b": "n07", "relationship": "STRONG", "justification": ""},
+    {"id": "ann007", "note_a": "n08", "note_b": "n09", "relationship": "STRONG", "justification": ""},
+    {"id": "ann008", "note_a": "n10", "note_b": "n07", "relationship": "STRONG", "justification": ""},
+    {"id": "ann009", "note_a": "n11", "note_b": "n14", "relationship": "STRONG", "justification": ""},
+    {"id": "ann010", "note_a": "n11", "note_b": "n13", "relationship": "STRONG", "justification": ""},
+    {"id": "ann011", "note_a": "n13", "note_b": "n15", "relationship": "STRONG", "justification": ""},
+    {"id": "ann012", "note_a": "n16", "note_b": "n18", "relationship": "STRONG", "justification": ""},
+    {"id": "ann013", "note_a": "n16", "note_b": "n19", "relationship": "STRONG", "justification": ""},
+    {"id": "ann014", "note_a": "n18", "note_b": "n20", "relationship": "STRONG", "justification": ""},
+    {"id": "ann015", "note_a": "n21", "note_b": "n22", "relationship": "STRONG", "justification": ""},
+    {"id": "ann016", "note_a": "n22", "note_b": "n24", "relationship": "STRONG", "justification": ""},
+    {"id": "ann017", "note_a": "n23", "note_b": "n21", "relationship": "STRONG", "justification": ""},
+    {"id": "ann018", "note_a": "n25", "note_b": "n27", "relationship": "STRONG", "justification": ""},
+    {"id": "ann019", "note_a": "n26", "note_b": "n28", "relationship": "STRONG", "justification": ""},
+    {"id": "ann020", "note_a": "n26", "note_b": "n32", "relationship": "WEAK", "justification": ""},
+    {"id": "ann021", "note_a": "n35", "note_b": "n40", "relationship": "WEAK", "justification": ""},
+    {"id": "ann022", "note_a": "n35", "note_b": "n39", "relationship": "WEAK", "justification": ""},
+    {"id": "ann023", "note_a": "n37", "note_b": "n20", "relationship": "WEAK", "justification": ""},
+    {"id": "ann024", "note_a": "n38", "note_b": "n11", "relationship": "WEAK", "justification": ""},
+    {"id": "ann025", "note_a": "n01", "note_b": "n06", "relationship": "WEAK", "justification": ""},
+    {"id": "ann026", "note_a": "n24", "note_b": "n28", "relationship": "WEAK", "justification": ""},
+    {"id": "ann027", "note_a": "n17", "note_b": "n26", "relationship": "WEAK", "justification": ""},
+    {"id": "ann028", "note_a": "n29", "note_b": "n33", "relationship": "NONE", "justification": ""},
+    {"id": "ann029", "note_a": "n31", "note_b": "n02", "relationship": "NONE", "justification": ""},
+    {"id": "ann030", "note_a": "n29", "note_b": "n11", "relationship": "NONE", "justification": ""},
+    {"id": "ann031", "note_a": "n30", "note_b": "n15", "relationship": "NONE", "justification": ""},
+    {"id": "ann032", "note_a": "n34", "note_b": "n36", "relationship": "NONE", "justification": ""},
+    {"id": "ann033", "note_a": "n33", "note_b": "n04", "relationship": "NONE", "justification": ""},
+    {"id": "ann034", "note_a": "n29", "note_b": "n25", "relationship": "NONE", "justification": ""},
+    {"id": "ann035", "note_a": "n31", "note_b": "n13", "relationship": "NONE", "justification": ""},
+    {"id": "ann036", "note_a": "n30", "note_b": "n08", "relationship": "NONE", "justification": ""},
+    {"id": "ann037", "note_a": "n34", "note_b": "n18", "relationship": "NONE", "justification": ""},
+    {"id": "ann038", "note_a": "n32", "note_b": "n05", "relationship": "NONE", "justification": ""},
+    {"id": "ann039", "note_a": "n33", "note_b": "n36", "relationship": "NONE", "justification": ""},
+    {"id": "ann040", "note_a": "n29", "note_b": "n39", "relationship": "NONE", "justification": ""},
+    {"id": "ann041", "note_a": "n30", "note_b": "n24", "relationship": "NONE", "justification": ""},
+    {"id": "ann042", "note_a": "n34", "note_b": "n13", "relationship": "NONE", "justification": ""}
+  ]
+}

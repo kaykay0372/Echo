@@ -1,0 +1,1010 @@
+openapi: 3.0.3
+
+info:
+    title: Echo API
+    version: 1.0.0
+    description: |
+        Local-first REST API for Echo — a multimodal semantic second brain.
+        All processing runs on the user's device. No external network calls are
+        made during normal operation. The API never generates content; it only
+        stores, retrieves, and surfaces the user's own existing notes.
+
+servers:
+    - url: http://localhost:1003
+      description: Local development server
+
+#  REUSABLE COMPONENTS
+components:
+    schemas:
+        #  Enumerations 
+        NoteType:
+            type: string
+            enum: [text, image, audio, canvas]
+            description: >
+                Determines which ML pipeline jobs are dispatched after save.
+                Canvas notes skip the embedding pipeline entirely.
+
+        EmbeddingStatus:
+            type: string
+            enum: [pending, processing, complete, failed, skipped]
+            description: >
+                Tracks whether a valid embedding vector exists in ChromaDB for
+                this note. "skipped" is for drawing elements that can't be meaningfully embedded.
+
+        LinkType:
+            type: string
+            enum: [semantic, manual]
+
+        LinkStatus:
+            type: string
+            enum: [pending_approval, confirmed, rejected]
+
+        JobType:
+            type: string
+            enum: [transcribe, caption, ocr, embed, generate_links]
+
+        JobStatus:
+            type: string
+            enum: [queued, running, complete, failed]
+
+        ElementType:
+            type: string
+            enum: [shape, arrow, sticky_note, text_box, drawing, frame]
+
+        #  Core objects 
+        Note:
+            type: object
+            required:
+                [
+                    id,
+                    note_type,
+                    embedding_status,
+                    show_generated_content,
+                    is_favourite,
+                    is_deleted,
+                    created_at,
+                    updated_at,
+                    word_count,
+                ]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                    description: Primary key. Shared with ChromaDB entry.
+                    example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                note_type:
+                    $ref: "#/components/schemas/NoteType"
+                title:
+                    type: string
+                    nullable: true
+                    maxLength: 500
+                    example: "Random thought: Why clouds?"
+                body:
+                    type: string
+                    nullable: true
+                    description: Raw typed text. Null for pure-image or pure-audio notes.
+                    example: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                embedding_text:
+                    type: string
+                    nullable: true
+                    description: >
+                        Exact concatenated string fed to sentence-transformers.
+                        Stored for reproducibility and evaluation debugging.
+                embedding_status:
+                    $ref: "#/components/schemas/EmbeddingStatus"
+                show_generated_content:
+                    type: boolean
+                    description: Controls caption/transcript visibility in the UI.
+                    default: true
+                is_favourite:
+                    type: boolean
+                    default: false
+                is_deleted:
+                    type: boolean
+                    default: false
+                created_at:
+                    type: string
+                    format: date-time
+                    example: "2025-11-03T14:22:00Z"
+                updated_at:
+                    type: string
+                    format: date-time
+                deleted_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                word_count:
+                    type: integer
+                    minimum: 0
+                    default: 0
+                attachments:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Attachment"
+                    description: Populated when include_attachments=true. Empty array otherwise.
+
+        NoteCreate:
+            type: object
+            required: [note_type]
+            properties:
+                note_type:
+                    $ref: "#/components/schemas/NoteType"
+                title:
+                    type: string
+                    nullable: true
+                    maxLength: 500
+                body:
+                    type: string
+                    nullable: true
+                show_generated_content:
+                    type: boolean
+                    default: true
+
+        NoteUpdate:
+            type: object
+            properties:
+                title:
+                    type: string
+                    nullable: true
+                    maxLength: 500
+                body:
+                    type: string
+                    nullable: true
+                is_favourite:
+                    type: boolean
+                show_generated_content:
+                    type: boolean
+
+        Attachment:
+            type: object
+            required: [id, note_id, file_path, file_type, content_hash, processing_status, created_at]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                note_id:
+                    type: string
+                    format: uuid
+                file_path:
+                    type: string
+                    description: Absolute path to the file on disk.
+                    example: "/home/user/.echo/files/testImage.jpg"
+                file_type:
+                    type: string
+                    enum: [image, audio]
+                content_hash:
+                    type: string
+                    description: SHA-256 hex digest. Used for duplicate detection.
+                    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                generated_caption:
+                    type: string
+                    nullable: true
+                generated_ocr_text:
+                    type: string
+                    nullable: true
+                generated_transcript:
+                    type: string
+                    nullable: true
+                processing_status:
+                    type: string
+                    enum: [pending, processing, complete, failed]
+                created_at:
+                    type: string
+                    format: date-time
+
+        Link:
+            type: object
+            required: [id, source_note_id, target_note_id, link_type, status, created_at]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                source_note_id:
+                    type: string
+                    format: uuid
+                target_note_id:
+                    type: string
+                    format: uuid
+                link_type:
+                    $ref: "#/components/schemas/LinkType"
+                similarity_score:
+                    type: number
+                    format: float
+                    minimum: 0.0
+                    maximum: 1.0
+                    nullable: true
+                    description: Cosine similarity from ChromaDB. Null for manual links.
+                status:
+                    $ref: "#/components/schemas/LinkStatus"
+                created_at:
+                    type: string
+                    format: date-time
+                confirmed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+
+        GraphNode:
+            type: object
+            required: [id, title, note_type, embedding_status]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                title:
+                    type: string
+                    nullable: true
+                note_type:
+                    $ref: "#/components/schemas/NoteType"
+                embedding_status:
+                    $ref: "#/components/schemas/EmbeddingStatus"
+                is_favourite:
+                    type: boolean
+                word_count:
+                    type: integer
+
+        GraphEdge:
+            type: object
+            required: [source, target, link_type, status]
+            properties:
+                source:
+                    type: string
+                    format: uuid
+                    description: References GraphNode.id
+                target:
+                    type: string
+                    format: uuid
+                    description: References GraphNode.id
+                link_type:
+                    $ref: "#/components/schemas/LinkType"
+                similarity_score:
+                    type: number
+                    format: float
+                    nullable: true
+                status:
+                    $ref: "#/components/schemas/LinkStatus"
+
+        GraphResponse:
+            type: object
+            required: [nodes, edges]
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/GraphNode"
+                edges:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/GraphEdge"
+                stats:
+                    type: object
+                    properties:
+                        total_notes:
+                            type: integer
+                        total_links:
+                            type: integer
+                        total_embeddings:
+                            type: integer
+
+        Job:
+            type: object
+            required: [id, job_type, status, retry_count, created_at]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                note_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+                attachment_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+                job_type:
+                    $ref: "#/components/schemas/JobType"
+                status:
+                    $ref: "#/components/schemas/JobStatus"
+                error_message:
+                    type: string
+                    nullable: true
+                retry_count:
+                    type: integer
+                    minimum: 0
+                    default: 0
+                created_at:
+                    type: string
+                    format: date-time
+                started_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+
+        HealthResponse:
+            type: object
+            required: [status, models]
+            properties:
+                status:
+                    type: string
+                    enum: [ok, degraded]
+                models:
+                    type: object
+                    properties:
+                        sentence_transformers:
+                            type: boolean
+                            description: True if model is loaded and responsive.
+                        whisper:
+                            type: boolean
+                        blip:
+                            type: boolean
+                        surya:
+                            type: boolean
+                storage:
+                    type: object
+                    properties:
+                        sqlite:
+                            type: boolean
+                        chromadb:
+                            type: boolean
+                queue:
+                    type: object
+                    properties:
+                        pending_jobs:
+                            type: integer
+                        failed_jobs:
+                            type: integer
+
+        BatchImportRequest:
+            type: object
+            required: [notes]
+            properties:
+                notes:
+                    type: array
+                    minItems: 1
+                    maxItems: 50
+                    items:
+                        $ref: "#/components/schemas/NoteCreate"
+
+        BatchImportResponse:
+            type: object
+            required: [created, failed]
+            properties:
+                created:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Note"
+                failed:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            index:
+                                type: integer
+                                description: Zero-based index in the original request array.
+                            reason:
+                                type: string
+
+        #  Error schemas 
+        Error400:
+            type: object
+            required: [error, detail]
+            properties:
+                error:
+                    type: string
+                    example: "validation_error"
+                detail:
+                    type: string
+                    example: "note_type must be one of: text, image, audio, canvas"
+
+        Error404:
+            type: object
+            required: [error, detail]
+            properties:
+                error:
+                    type: string
+                    example: "not_found"
+                detail:
+                    type: string
+                    example: "Note with id 'a1b2c3d4...' does not exist."
+
+        Error409:
+            type: object
+            required: [error, detail]
+            properties:
+                error:
+                    type: string
+                    example: "duplicate_content"
+                detail:
+                    type: string
+                    example: "This file already exists as note 'Random thought: Why clouds?'."
+                existing_note_id:
+                    type: string
+                    format: uuid
+
+        Error500:
+            type: object
+            required: [error, detail]
+            properties:
+                error:
+                    type: string
+                    example: "internal_error"
+                detail:
+                    type: string
+                    example: "An unexpected error occurred."
+
+    #  PARAMETERS 
+    parameters:
+        NoteId:
+            name: id
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+            description: The UUID of the note.
+
+        LimitParam:
+            name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                maximum: 50
+                default: 5
+            description: Maximum number of results to return.
+
+        IncludeDeleted:
+            name: include_deleted
+            in: query
+            required: false
+            schema:
+                type: boolean
+                default: false
+            description: When true, includes soft-deleted notes in results.
+
+        NoteTypeFilter:
+            name: note_type
+            in: query
+            required: false
+            schema:
+                $ref: "#/components/schemas/NoteType"
+            description: Filter notes by type.
+
+#  PATHS
+paths:
+    #  HEALTH 
+    /health:
+        get:
+            operationId: getHealth
+            summary: Health check
+            description: >
+                Returns the operational status of all ML models and storage
+                backends. Used by the frontend to display a degraded-state banner
+                if any model failed to load.
+            tags: [System]
+            responses:
+                "200":
+                    description: Service status. Returns "degraded" if any model is unavailable.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/HealthResponse"
+                            example:
+                                status: ok
+                                models:
+                                    sentence_transformers: true
+                                    whisper: true
+                                    blip: true
+                                    surya: true
+                                storage:
+                                    sqlite: true
+                                    chromadb: true
+                                queue:
+                                    pending_jobs: 3
+                                    failed_jobs: 0
+
+    #  NOTES 
+    /notes:
+        get:
+            operationId: listNotes
+            summary: List all notes
+            description: >
+                Returns all non-deleted notes ordered by updated_at descending.
+                Attachments are not included by default to keep response size small;
+                use GET /notes/{id} for full detail.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/LimitParam"
+                - $ref: "#/components/parameters/IncludeDeleted"
+                - $ref: "#/components/parameters/NoteTypeFilter"
+                - name: search
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      maxLength: 200
+                  description: Full-text search against title and body fields.
+            responses:
+                "200":
+                    description: Array of notes.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Note"
+                            example:
+                                - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                  note_type: text
+                                  title: "Random thought: Why clouds?"
+                                  body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                  embedding_text: "Random thought: Why clouds? There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                  embedding_status: complete
+                                  show_generated_content: true
+                                  is_favourite: false
+                                  is_deleted: false
+                                  created_at: "2025-11-03T14:22:00Z"
+                                  updated_at: "2025-11-03T14:30:00Z"
+                                  deleted_at: null
+                                  word_count: 12
+                                  attachments: []
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+        post:
+            operationId: createNote
+            summary: Create a new note
+            description: >
+                Creates a new note and immediately returns it with embedding_status
+                set to "pending". All ML processing (caption, OCR, transcription,
+                embedding) is dispatched to the background job queue and does not
+                block this response. This guarantees note save time under 200ms (!NF-01).
+            tags: [Notes]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NoteCreate"
+                        example:
+                            note_type: text
+                            title: "Random thought: Why clouds?"
+                            body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+            responses:
+                "201":
+                    description: Note created successfully.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Note"
+                            example:
+                                id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                note_type: text
+                                title: "Random thought: Why clouds?"
+                                body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                embedding_text: null
+                                embedding_status: pending
+                                show_generated_content: true
+                                is_favourite: false
+                                is_deleted: false
+                                created_at: "2025-11-03T14:22:00Z"
+                                updated_at: "2025-11-03T14:22:00Z"
+                                deleted_at: null
+                                word_count: 14
+                                attachments: []
+                "400":
+                    description: Validation error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}:
+        get:
+            operationId: getNote
+            summary: Get a single note
+            description: Returns full note detail including all attachments.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            responses:
+                "200":
+                    description: Note found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Note"
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+        patch:
+            operationId: updateNote
+            summary: Update a note
+            description: >
+                Partial update. Only supplied fields are modified. If body or title
+                changes, a new "embed" job is queued and embedding_status reverts
+                to "pending".
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NoteUpdate"
+                        example:
+                            body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                            is_favourite: true
+            responses:
+                "200":
+                    description: Note updated.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Note"
+                "400":
+                    description: Validation error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+        delete:
+            operationId: deleteNote
+            summary: Soft-delete a note (move to trash)
+            description: >
+                Sets is_deleted=true and deleted_at to the current timestamp.
+                Updates ChromaDB metadata to is_deleted=true so the note is
+                excluded from all future similarity queries. The note can be
+                restored via PATCH /notes/{id} with is_deleted=false.
+                To permanently delete, call DELETE /notes/{id}/permanent.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            responses:
+                "204":
+                    description: Note moved to trash. No response body.
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}/permanent:
+        delete:
+            operationId: permanentlyDeleteNote
+            summary: Permanently delete a note
+            description: >
+                Irreversibly removes the note from SQLite, its embedding vector
+                from ChromaDB, all associated links, jobs, note_tags, canvas_items
+                rows, and any files on disk. SQLite row is deleted last so that
+                partial failures are recoverable. Note must already be soft-deleted
+                (is_deleted=true) before this endpoint can be called.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            responses:
+                "204":
+                    description: Note permanently deleted. No response body.
+                "400":
+                    description: Note is not in trash.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}/connections:
+        get:
+            operationId: getNoteConnections
+            summary: Get semantically similar notes
+            description: >
+                Queries ChromaDB for the most semantically similar notes
+                using approximate nearest-neighbour (ANN) search on the stored
+                384-dimension embedding vector. Excludes the note itself,
+                soft-deleted notes, and canvas notes. Returns notes ordered by
+                descending cosine similarity.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+                - $ref: "#/components/parameters/LimitParam"
+            responses:
+                "200":
+                    description: Array of similar notes with similarity scores.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    required: [note, similarity_score]
+                                    properties:
+                                        note:
+                                            $ref: "#/components/schemas/Note"
+                                        similarity_score:
+                                            type: number
+                                            format: float
+                                            minimum: 0.0
+                                            maximum: 1.0
+                            example:
+                                - similarity_score: 0.912
+                                  note:
+                                      id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                                      note_type: text
+                                      title: "DOes life exist without water"
+                                      body: "There is a theory that water isn't necessary to sustain life..."
+                                      embedding_status: complete
+                                      is_favourite: false
+                                      is_deleted: false
+                                      created_at: "2025-10-28T09:15:00Z"
+                                      updated_at: "2025-10-28T09:15:00Z"
+                                      deleted_at: null
+                                      word_count: 22
+                                      show_generated_content: true
+                                      attachments: []
+                "404":
+                    description: Note not found or embedding not yet complete.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    #  BATCH 
+    /notes/batch:
+        post:
+            operationId: batchImportNotes
+            summary: Bulk import notes
+            description: >
+                Imports up to 50 notes in a single request. Each note is processed
+                independently. All ML jobs are queued after successful inserts.
+                Returns both successfully created notes and failed items with reasons.
+            tags: [Notes]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/BatchImportRequest"
+                        example:
+                            notes:
+                                - note_type: text
+                                  title: "Note 1"
+                                  body: "This is related to the research paper on water vapour"
+                                - note_type: text
+                                  title: "Note 2"
+                                  body: "Literary sources for water vapour paper:...."
+            responses:
+                "207":
+                    description: >
+                        Multi-status. Some notes may have succeeded while others failed.
+                        Check the "failed" array for per-item error details.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/BatchImportResponse"
+                            example:
+                                created:
+                                    - id: "c3d4e5f6-a7b8-9012-cdef-123456789012"
+                                      note_type: text
+                                      title: "Note 1"
+                                      body: "This is related to the research paper on water vapour"
+                                      embedding_status: pending
+                                      is_favourite: false
+                                      is_deleted: false
+                                      created_at: "2025-11-03T14:22:00Z"
+                                      updated_at: "2025-11-03T14:22:00Z"
+                                      deleted_at: null
+                                      word_count: 8
+                                      show_generated_content: true
+                                      attachments: []
+                                failed:
+                                    - index: 1
+                                      reason: "body must not exceed 100000 characters"
+                "400":
+                    description: The entire request body is invalid (e.g. notes array is empty?).
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    #  GRAPH 
+    /graph:
+        get:
+            operationId: getGraph
+            summary: Get full graph for D3 visualisation
+            description: >
+                Returns all non-deleted, non-canvas notes as nodes and all
+                confirmed links as edges. The response is designed to be passed
+                directly to D3.js force simulation. Canvas notes are excluded
+                because they do not participate in semantic similarity.
+                Edge source and target reference node id values.
+            tags: [Graph]
+            responses:
+                "200":
+                    description: Graph data with nodes, edges, and aggregate statistics.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/GraphResponse"
+                            example:
+                                nodes:
+                                    - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                      title: "Random thought: Why clouds?"
+                                      note_type: text
+                                      embedding_status: complete
+                                      is_favourite: false
+                                      word_count: 14
+                                    - id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                                      title: "Water vapour research paper"
+                                      note_type: text
+                                      embedding_status: complete
+                                      is_favourite: false
+                                      word_count: 22
+                                edges:
+                                    - source: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                      target: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                                      link_type: semantic
+                                      similarity_score: 0.912
+                                      status: confirmed
+                                stats:
+                                    total_notes: 2
+                                    total_links: 1
+                                    total_embeddings: 2
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    #  JOBS 
+    /jobs:
+        get:
+            operationId: listJobs
+            summary: List background jobs
+            description: >
+                Returns all jobs ordered by created_at descending. Used by the
+                process queue panel (!F-52) to show running, pending, and failed jobs.
+            tags: [Jobs]
+            parameters:
+                - name: status
+                  in: query
+                  required: false
+                  schema:
+                      $ref: "#/components/schemas/JobStatus"
+                  description: Filter by job status.
+                - $ref: "#/components/parameters/LimitParam"
+            responses:
+                "200":
+                    description: Array of jobs.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Job"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /jobs/{id}/retry:
+        post:
+            operationId: retryJob
+            summary: Retry a failed job
+            description: >
+                Re-queues a job that has status "failed". Increments retry_count.
+                Returns 400 if the job is not in a failed state.
+            tags: [Jobs]
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: Job re-queued successfully.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Job"
+                "400":
+                    description: Job is not in a failed state.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Job not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+tags:
+    - name: System
+      description: Health and operational status endpoints.
+    - name: Notes
+      description: Note CRUD, connection retrieval, and bulk import.
+    - name: Graph
+      description: Graph data for D3 visualisation.
+    - name: Jobs
+      description: Background job queue management.
