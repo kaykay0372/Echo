@@ -4,7 +4,7 @@ from PIL import Image
 import easyocr
 import time
 
-IMAGE_PATH = "test_image.png"
+IMAGE_PATH = "ex_image.png"
 LANGS = ["en"]
 CONFIDENCE_THRESHOLD = 0.3
 # Text shorter than this is treated as "no text found"

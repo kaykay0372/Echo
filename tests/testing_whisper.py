@@ -4,7 +4,7 @@ import whisper
 import time
 import os
 
-AUDIO_FILE = "test_audio.mp4"
+AUDIO_FILE = "ex_audio.mp4"
 
 # STEP 1: Check the file exists
 print("\n STEP 1: Checking audio file ")

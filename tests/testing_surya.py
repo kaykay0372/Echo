@@ -7,7 +7,7 @@ from surya.detection import DetectionPredictor
 from PIL import Image
 import time
 
-IMAGE_PATH = "test_image.png"
+IMAGE_PATH = "ex_image.png"
 CONFIDENCE_THRESHOLD = 0.5
 MIN_TEXT_LENGTH = 3
 MIN_MEANINGFUL_LENGTH = 15

@@ -1,0 +1,3370 @@
+{
+  "k": 5,
+  "dataset_path": "./data/40_notes.json",
+  "selected_model": "all-MiniLM-L6-v2",
+  "models": {
+    "all-MiniLM-L6-v2": {
+      "mean_precision_strict": 0.14615384615384616,
+      "mean_precision_lenient": 0.15151515151515152,
+      "mean_latency_ms": 20.078046666700782,
+      "stdev_latency_ms": 0.8311426924655243,
+      "notes_with_conn_strict": 26,
+      "notes_with_conn_lenient": 33,
+      "per_note": [
+        {
+          "note_id": "n01",
+          "title": "In medias res \u2014 why it works",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n02",
+            "n03",
+            "n25",
+            "n22",
+            "n27"
+          ],
+          "top_scores": [
+            0.7136,
+            0.7042,
+            0.7006,
+            0.699,
+            0.6966
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03",
+            "n05"
+          ],
+          "conn_lenient": [
+            "n03",
+            "n05",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n02",
+          "title": "Voice memo \u2014 three act structure rant",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n05",
+            "n17",
+            "n27",
+            "n14",
+            "n03"
+          ],
+          "top_scores": [
+            0.7921,
+            0.7658,
+            0.7585,
+            0.757,
+            0.748
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n03",
+          "title": "Non-linear time \u2014 draft fragment",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n02",
+            "n01",
+            "n22",
+            "n25",
+            "n28"
+          ],
+          "top_scores": [
+            0.748,
+            0.7042,
+            0.6956,
+            0.6936,
+            0.6852
+          ],
+          "p_strict": 0.4,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n01",
+            "n02",
+            "n04"
+          ],
+          "conn_lenient": [
+            "n01",
+            "n02",
+            "n04"
+          ]
+        },
+        {
+          "note_id": "n04",
+          "title": "Endings \u2014 what they actually need to do",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n01",
+            "n06",
+            "n03",
+            "n15",
+            "n08"
+          ],
+          "top_scores": [
+            0.6477,
+            0.6447,
+            0.6333,
+            0.6313,
+            0.6309
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n05",
+          "title": "Voice memo \u2014 scene transitions",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n02",
+            "n14",
+            "n27",
+            "n17",
+            "n01"
+          ],
+          "top_scores": [
+            0.7921,
+            0.7158,
+            0.6975,
+            0.6861,
+            0.677
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n01"
+          ],
+          "conn_lenient": [
+            "n01"
+          ]
+        },
+        {
+          "note_id": "n06",
+          "title": "Characters who lie to themselves",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n08",
+            "n22",
+            "n25",
+            "n01",
+            "n24"
+          ],
+          "top_scores": [
+            0.7477,
+            0.7004,
+            0.6885,
+            0.6856,
+            0.6623
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n08",
+            "n07"
+          ],
+          "conn_lenient": [
+            "n08",
+            "n01",
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n07",
+          "title": "Voice memo \u2014 overheard on the bus",
+          "note_type": "audio",
+          "cluster": "C2",
+          "retrieved": [
+            "n34",
+            "n33",
+            "n14",
+            "n30",
+            "n27"
+          ],
+          "top_scores": [
+            0.7098,
+            0.6985,
+            0.6816,
+            0.6717,
+            0.6484
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n10",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n10",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n08",
+          "title": "First person unreliable \u2014 draft notes for essay",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n06",
+            "n22",
+            "n25",
+            "n12",
+            "n03"
+          ],
+          "top_scores": [
+            0.7477,
+            0.7013,
+            0.6883,
+            0.6814,
+            0.6799
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n09",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n09",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n09",
+          "title": "Photo \u2014 handwritten letter found in a secondhand book",
+          "note_type": "image",
+          "cluster": "C2",
+          "retrieved": [
+            "n20",
+            "n12",
+            "n23",
+            "n38",
+            "n27"
+          ],
+          "top_scores": [
+            0.7783,
+            0.7656,
+            0.7444,
+            0.7264,
+            0.7085
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n08"
+          ],
+          "conn_lenient": [
+            "n08"
+          ]
+        },
+        {
+          "note_id": "n10",
+          "title": "How people talk when nervous",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n14",
+            "n33",
+            "n11",
+            "n27",
+            "n34"
+          ],
+          "top_scores": [
+            0.7236,
+            0.7077,
+            0.7075,
+            0.6784,
+            0.6649
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n07"
+          ],
+          "conn_lenient": [
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n11",
+          "title": "Sentence rhythm \u2014 something I keep ignoring",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n14",
+            "n26",
+            "n12",
+            "n10",
+            "n02"
+          ],
+          "top_scores": [
+            0.8358,
+            0.745,
+            0.7368,
+            0.7075,
+            0.7046
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n13",
+            "n14"
+          ],
+          "conn_lenient": [
+            "n13",
+            "n14",
+            "n38"
+          ]
+        },
+        {
+          "note_id": "n12",
+          "title": "Screenshot \u2014 underlined passage, Renata Adler",
+          "note_type": "image",
+          "cluster": "C3",
+          "retrieved": [
+            "n09",
+            "n23",
+            "n28",
+            "n11",
+            "n26"
+          ],
+          "top_scores": [
+            0.7656,
+            0.7389,
+            0.7388,
+            0.7368,
+            0.7301
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n13",
+          "title": "The problem with adjectives",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n35",
+            "n31",
+            "n15",
+            "n25",
+            "n40"
+          ],
+          "top_scores": [
+            0.6988,
+            0.6821,
+            0.6476,
+            0.6416,
+            0.6408
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n15",
+            "n11"
+          ],
+          "conn_lenient": [
+            "n15",
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n14",
+          "title": "Voice memo \u2014 reading aloud experiment",
+          "note_type": "audio",
+          "cluster": "C3",
+          "retrieved": [
+            "n11",
+            "n27",
+            "n02",
+            "n17",
+            "n10"
+          ],
+          "top_scores": [
+            0.8358,
+            0.7783,
+            0.757,
+            0.7321,
+            0.7236
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n11"
+          ],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n15",
+          "title": "On metaphor \u2014 rough",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n25",
+            "n27",
+            "n23",
+            "n11",
+            "n13"
+          ],
+          "top_scores": [
+            0.6893,
+            0.6623,
+            0.6606,
+            0.6592,
+            0.6476
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n13"
+          ],
+          "conn_lenient": [
+            "n13"
+          ]
+        },
+        {
+          "note_id": "n16",
+          "title": "Writer's block is a symptom",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n25",
+            "n18",
+            "n09",
+            "n26",
+            "n11"
+          ],
+          "top_scores": [
+            0.6931,
+            0.6849,
+            0.6766,
+            0.6698,
+            0.6649
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n19",
+            "n18"
+          ],
+          "conn_lenient": [
+            "n19",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n17",
+          "title": "Voice memo \u2014 2am idea, probably useless",
+          "note_type": "audio",
+          "cluster": "C4",
+          "retrieved": [
+            "n02",
+            "n26",
+            "n27",
+            "n14",
+            "n22"
+          ],
+          "top_scores": [
+            0.7658,
+            0.7471,
+            0.7443,
+            0.7321,
+            0.7237
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n18",
+          "title": "Morning pages \u2014 does it actually work?",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n12",
+            "n26",
+            "n11",
+            "n20",
+            "n09"
+          ],
+          "top_scores": [
+            0.7223,
+            0.7056,
+            0.7007,
+            0.7007,
+            0.6968
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n16",
+            "n20"
+          ],
+          "conn_lenient": [
+            "n16",
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n19",
+          "title": "Random: deadlines are load-bearing",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n28",
+            "n20",
+            "n04",
+            "n03",
+            "n34"
+          ],
+          "top_scores": [
+            0.6676,
+            0.6516,
+            0.6234,
+            0.6189,
+            0.6055
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n16"
+          ],
+          "conn_lenient": [
+            "n16"
+          ]
+        },
+        {
+          "note_id": "n20",
+          "title": "Photo \u2014 my desk at its worst",
+          "note_type": "image",
+          "cluster": "C4",
+          "retrieved": [
+            "n09",
+            "n12",
+            "n37",
+            "n18",
+            "n38"
+          ],
+          "top_scores": [
+            0.7783,
+            0.7209,
+            0.7111,
+            0.7007,
+            0.6952
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n18"
+          ],
+          "conn_lenient": [
+            "n37",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n21",
+          "title": "Le Guin \u2014 on the reader",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n25",
+            "n23",
+            "n22",
+            "n28",
+            "n01"
+          ],
+          "top_scores": [
+            0.6807,
+            0.6801,
+            0.6738,
+            0.6447,
+            0.6446
+          ],
+          "p_strict": 0.4,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n23",
+            "n22"
+          ],
+          "conn_lenient": [
+            "n23",
+            "n22"
+          ]
+        },
+        {
+          "note_id": "n22",
+          "title": "Voice memo \u2014 reading a Didion line",
+          "note_type": "audio",
+          "cluster": "C5",
+          "retrieved": [
+            "n27",
+            "n17",
+            "n02",
+            "n25",
+            "n23"
+          ],
+          "top_scores": [
+            0.7312,
+            0.7237,
+            0.7234,
+            0.7184,
+            0.7135
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n24",
+            "n21"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n23",
+          "title": "Photo \u2014 quote card on a caf\u00e9 wall",
+          "note_type": "image",
+          "cluster": "C5",
+          "retrieved": [
+            "n09",
+            "n12",
+            "n22",
+            "n39",
+            "n38"
+          ],
+          "top_scores": [
+            0.7444,
+            0.7389,
+            0.7135,
+            0.7031,
+            0.6994
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n21"
+          ],
+          "conn_lenient": [
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n24",
+          "title": "Baldwin \u2014 on the purpose of art",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n25",
+            "n39",
+            "n01",
+            "n08",
+            "n06"
+          ],
+          "top_scores": [
+            0.6999,
+            0.6934,
+            0.6813,
+            0.6658,
+            0.6623
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n22"
+          ],
+          "conn_lenient": [
+            "n22",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n25",
+          "title": "Essay draft \u2014 why genre fiction matters, opening",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n22",
+            "n01",
+            "n24",
+            "n03",
+            "n28"
+          ],
+          "top_scores": [
+            0.7184,
+            0.7006,
+            0.6999,
+            0.6936,
+            0.6932
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n27"
+          ],
+          "conn_lenient": [
+            "n27"
+          ]
+        },
+        {
+          "note_id": "n26",
+          "title": "Essay outline \u2014 attention and the long read",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n17",
+            "n11",
+            "n12",
+            "n28",
+            "n14"
+          ],
+          "top_scores": [
+            0.7471,
+            0.745,
+            0.7301,
+            0.7235,
+            0.713
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n28"
+          ],
+          "conn_lenient": [
+            "n17",
+            "n32",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n27",
+          "title": "Voice memo \u2014 essay idea on rereading",
+          "note_type": "audio",
+          "cluster": "C6",
+          "retrieved": [
+            "n14",
+            "n02",
+            "n17",
+            "n28",
+            "n22"
+          ],
+          "top_scores": [
+            0.7783,
+            0.7585,
+            0.7443,
+            0.7321,
+            0.7312
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n25"
+          ],
+          "conn_lenient": [
+            "n25"
+          ]
+        },
+        {
+          "note_id": "n28",
+          "title": "Draft \u2014 reading as resistance, first para only",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n37",
+            "n12",
+            "n27",
+            "n26",
+            "n11"
+          ],
+          "top_scores": [
+            0.7396,
+            0.7388,
+            0.7321,
+            0.7235,
+            0.697
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n26"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n29",
+          "title": "Random: what to have for dinner",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n23",
+            "n36",
+            "n30",
+            "n37",
+            "n12"
+          ],
+          "top_scores": [
+            0.6077,
+            0.5973,
+            0.5778,
+            0.5626,
+            0.5561
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n30",
+          "title": "Voice memo \u2014 train delay, nothing to do",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n32",
+            "n14",
+            "n33",
+            "n34",
+            "n07"
+          ],
+          "top_scores": [
+            0.7249,
+            0.7217,
+            0.6894,
+            0.6782,
+            0.6717
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n31",
+          "title": "Photo \u2014 sunset from the kitchen window",
+          "note_type": "image",
+          "cluster": "C7",
+          "retrieved": [
+            "n35",
+            "n38",
+            "n36",
+            "n40",
+            "n13"
+          ],
+          "top_scores": [
+            0.7299,
+            0.7235,
+            0.6975,
+            0.6842,
+            0.6821
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n32",
+          "title": "Random thought \u2014 phone addiction and boredom",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n30",
+            "n18",
+            "n12",
+            "n33",
+            "n34"
+          ],
+          "top_scores": [
+            0.7249,
+            0.6619,
+            0.6465,
+            0.6464,
+            0.6389
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n33",
+          "title": "Voice memo \u2014 dream, half-remembered",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n27",
+            "n14",
+            "n10",
+            "n07",
+            "n30"
+          ],
+          "top_scores": [
+            0.7307,
+            0.7119,
+            0.7077,
+            0.6985,
+            0.6894
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n34",
+          "title": "Overheard \u2014 coffee shop, Tuesday",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n07",
+            "n02",
+            "n30",
+            "n14",
+            "n10"
+          ],
+          "top_scores": [
+            0.7098,
+            0.6796,
+            0.6782,
+            0.6726,
+            0.6649
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n35",
+          "title": "Mood board \u2014 foggy path, for the novel",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n31",
+            "n13",
+            "n38",
+            "n30",
+            "n40"
+          ],
+          "top_scores": [
+            0.7299,
+            0.6988,
+            0.6911,
+            0.6423,
+            0.6402
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n40",
+            "n39"
+          ]
+        },
+        {
+          "note_id": "n36",
+          "title": "Reference \u2014 colour palette for the cover idea",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n37",
+            "n39",
+            "n09",
+            "n31",
+            "n23"
+          ],
+          "top_scores": [
+            0.7265,
+            0.7207,
+            0.7016,
+            0.6975,
+            0.6858
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n37",
+          "title": "Inspiration \u2014 architect's drafting table",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n28",
+            "n36",
+            "n39",
+            "n20",
+            "n12"
+          ],
+          "top_scores": [
+            0.7396,
+            0.7265,
+            0.7233,
+            0.7111,
+            0.6858
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n38",
+          "title": "Screenshot \u2014 paragraph formatting I liked",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n09",
+            "n31",
+            "n23",
+            "n20",
+            "n12"
+          ],
+          "top_scores": [
+            0.7264,
+            0.7235,
+            0.6994,
+            0.6952,
+            0.6942
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n39",
+          "title": "Voice memo \u2014 describing a painting for the collection",
+          "note_type": "audio",
+          "cluster": "C8",
+          "retrieved": [
+            "n37",
+            "n36",
+            "n23",
+            "n24",
+            "n09"
+          ],
+          "top_scores": [
+            0.7233,
+            0.7207,
+            0.7031,
+            0.6934,
+            0.6861
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        },
+        {
+          "note_id": "n40",
+          "title": "Photo \u2014 empty theatre, backstage",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n31",
+            "n23",
+            "n05",
+            "n39",
+            "n38"
+          ],
+          "top_scores": [
+            0.6842,
+            0.6743,
+            0.656,
+            0.6541,
+            0.6496
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        }
+      ]
+    },
+    "all-mpnet-base-v2": {
+      "mean_precision_strict": 0.14615384615384616,
+      "mean_precision_lenient": 0.18181818181818182,
+      "mean_latency_ms": 125.94283166666476,
+      "stdev_latency_ms": 2.176532054333152,
+      "notes_with_conn_strict": 26,
+      "notes_with_conn_lenient": 33,
+      "per_note": [
+        {
+          "note_id": "n01",
+          "title": "In medias res \u2014 why it works",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n02",
+            "n03",
+            "n04",
+            "n06",
+            "n26"
+          ],
+          "top_scores": [
+            0.7511,
+            0.7429,
+            0.6936,
+            0.6897,
+            0.6704
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n03",
+            "n05"
+          ],
+          "conn_lenient": [
+            "n03",
+            "n05",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n02",
+          "title": "Voice memo \u2014 three act structure rant",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n05",
+            "n27",
+            "n01",
+            "n03",
+            "n14"
+          ],
+          "top_scores": [
+            0.7853,
+            0.7714,
+            0.7511,
+            0.7427,
+            0.7417
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n03",
+          "title": "Non-linear time \u2014 draft fragment",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n01",
+            "n02",
+            "n27",
+            "n11",
+            "n12"
+          ],
+          "top_scores": [
+            0.7429,
+            0.7427,
+            0.6935,
+            0.6895,
+            0.6676
+          ],
+          "p_strict": 0.4,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n01",
+            "n02",
+            "n04"
+          ],
+          "conn_lenient": [
+            "n01",
+            "n02",
+            "n04"
+          ]
+        },
+        {
+          "note_id": "n04",
+          "title": "Endings \u2014 what they actually need to do",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n01",
+            "n21",
+            "n15",
+            "n24",
+            "n25"
+          ],
+          "top_scores": [
+            0.6936,
+            0.6811,
+            0.6698,
+            0.6649,
+            0.6622
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n05",
+          "title": "Voice memo \u2014 scene transitions",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n14",
+            "n02",
+            "n27",
+            "n39",
+            "n17"
+          ],
+          "top_scores": [
+            0.7902,
+            0.7853,
+            0.714,
+            0.7108,
+            0.6957
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n01"
+          ],
+          "conn_lenient": [
+            "n01"
+          ]
+        },
+        {
+          "note_id": "n06",
+          "title": "Characters who lie to themselves",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n08",
+            "n25",
+            "n01",
+            "n21",
+            "n22"
+          ],
+          "top_scores": [
+            0.7771,
+            0.7134,
+            0.6897,
+            0.6793,
+            0.6783
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n08",
+            "n07"
+          ],
+          "conn_lenient": [
+            "n08",
+            "n01",
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n07",
+          "title": "Voice memo \u2014 overheard on the bus",
+          "note_type": "audio",
+          "cluster": "C2",
+          "retrieved": [
+            "n33",
+            "n27",
+            "n22",
+            "n34",
+            "n39"
+          ],
+          "top_scores": [
+            0.7526,
+            0.7332,
+            0.7232,
+            0.7201,
+            0.6971
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n10",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n10",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n08",
+          "title": "First person unreliable \u2014 draft notes for essay",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n06",
+            "n12",
+            "n22",
+            "n02",
+            "n25"
+          ],
+          "top_scores": [
+            0.7771,
+            0.684,
+            0.6826,
+            0.6815,
+            0.672
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n09",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n09",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n09",
+          "title": "Photo \u2014 handwritten letter found in a secondhand book",
+          "note_type": "image",
+          "cluster": "C2",
+          "retrieved": [
+            "n20",
+            "n12",
+            "n23",
+            "n37",
+            "n28"
+          ],
+          "top_scores": [
+            0.7645,
+            0.7625,
+            0.7527,
+            0.743,
+            0.7326
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n08"
+          ],
+          "conn_lenient": [
+            "n08"
+          ]
+        },
+        {
+          "note_id": "n10",
+          "title": "How people talk when nervous",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n14",
+            "n11",
+            "n27",
+            "n12",
+            "n07"
+          ],
+          "top_scores": [
+            0.7239,
+            0.7117,
+            0.6921,
+            0.6855,
+            0.681
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n07"
+          ],
+          "conn_lenient": [
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n11",
+          "title": "Sentence rhythm \u2014 something I keep ignoring",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n14",
+            "n12",
+            "n27",
+            "n26",
+            "n38"
+          ],
+          "top_scores": [
+            0.7903,
+            0.7804,
+            0.7488,
+            0.7415,
+            0.74
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n13",
+            "n14"
+          ],
+          "conn_lenient": [
+            "n13",
+            "n14",
+            "n38"
+          ]
+        },
+        {
+          "note_id": "n12",
+          "title": "Screenshot \u2014 underlined passage, Renata Adler",
+          "note_type": "image",
+          "cluster": "C3",
+          "retrieved": [
+            "n11",
+            "n26",
+            "n28",
+            "n24",
+            "n09"
+          ],
+          "top_scores": [
+            0.7804,
+            0.78,
+            0.7679,
+            0.7629,
+            0.7625
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n13",
+          "title": "The problem with adjectives",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n35",
+            "n15",
+            "n12",
+            "n25",
+            "n21"
+          ],
+          "top_scores": [
+            0.6395,
+            0.626,
+            0.6189,
+            0.6147,
+            0.6142
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n15",
+            "n11"
+          ],
+          "conn_lenient": [
+            "n15",
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n14",
+          "title": "Voice memo \u2014 reading aloud experiment",
+          "note_type": "audio",
+          "cluster": "C3",
+          "retrieved": [
+            "n27",
+            "n11",
+            "n05",
+            "n17",
+            "n02"
+          ],
+          "top_scores": [
+            0.8128,
+            0.7903,
+            0.7902,
+            0.7474,
+            0.7417
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n11"
+          ],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n15",
+          "title": "On metaphor \u2014 rough",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n25",
+            "n12",
+            "n04",
+            "n27",
+            "n11"
+          ],
+          "top_scores": [
+            0.7004,
+            0.6899,
+            0.6698,
+            0.6656,
+            0.6641
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n13"
+          ],
+          "conn_lenient": [
+            "n13"
+          ]
+        },
+        {
+          "note_id": "n16",
+          "title": "Writer's block is a symptom",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n12",
+            "n11",
+            "n19",
+            "n15",
+            "n24"
+          ],
+          "top_scores": [
+            0.691,
+            0.658,
+            0.6464,
+            0.6422,
+            0.6408
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n19",
+            "n18"
+          ],
+          "conn_lenient": [
+            "n19",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n17",
+          "title": "Voice memo \u2014 2am idea, probably useless",
+          "note_type": "audio",
+          "cluster": "C4",
+          "retrieved": [
+            "n27",
+            "n26",
+            "n14",
+            "n02",
+            "n12"
+          ],
+          "top_scores": [
+            0.8039,
+            0.7558,
+            0.7474,
+            0.7411,
+            0.722
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n18",
+          "title": "Morning pages \u2014 does it actually work?",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n14",
+            "n11",
+            "n12",
+            "n09",
+            "n20"
+          ],
+          "top_scores": [
+            0.6834,
+            0.6683,
+            0.6605,
+            0.6594,
+            0.6528
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n16",
+            "n20"
+          ],
+          "conn_lenient": [
+            "n16",
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n19",
+          "title": "Random: deadlines are load-bearing",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n11",
+            "n20",
+            "n03",
+            "n09",
+            "n04"
+          ],
+          "top_scores": [
+            0.6725,
+            0.6646,
+            0.6608,
+            0.6599,
+            0.6586
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n16"
+          ],
+          "conn_lenient": [
+            "n16"
+          ]
+        },
+        {
+          "note_id": "n20",
+          "title": "Photo \u2014 my desk at its worst",
+          "note_type": "image",
+          "cluster": "C4",
+          "retrieved": [
+            "n37",
+            "n09",
+            "n12",
+            "n23",
+            "n31"
+          ],
+          "top_scores": [
+            0.7814,
+            0.7645,
+            0.7314,
+            0.7313,
+            0.7154
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n18"
+          ],
+          "conn_lenient": [
+            "n37",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n21",
+          "title": "Le Guin \u2014 on the reader",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n28",
+            "n24",
+            "n22",
+            "n25",
+            "n26"
+          ],
+          "top_scores": [
+            0.7921,
+            0.7563,
+            0.7524,
+            0.7392,
+            0.7274
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n23",
+            "n22"
+          ],
+          "conn_lenient": [
+            "n23",
+            "n22"
+          ]
+        },
+        {
+          "note_id": "n22",
+          "title": "Voice memo \u2014 reading a Didion line",
+          "note_type": "audio",
+          "cluster": "C5",
+          "retrieved": [
+            "n21",
+            "n24",
+            "n27",
+            "n33",
+            "n07"
+          ],
+          "top_scores": [
+            0.7524,
+            0.7377,
+            0.7328,
+            0.725,
+            0.7232
+          ],
+          "p_strict": 0.4,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n24",
+            "n21"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n23",
+          "title": "Photo \u2014 quote card on a caf\u00e9 wall",
+          "note_type": "image",
+          "cluster": "C5",
+          "retrieved": [
+            "n09",
+            "n12",
+            "n20",
+            "n24",
+            "n21"
+          ],
+          "top_scores": [
+            0.7527,
+            0.7356,
+            0.7313,
+            0.7281,
+            0.7191
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n21"
+          ],
+          "conn_lenient": [
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n24",
+          "title": "Baldwin \u2014 on the purpose of art",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n12",
+            "n21",
+            "n22",
+            "n28",
+            "n23"
+          ],
+          "top_scores": [
+            0.7629,
+            0.7563,
+            0.7377,
+            0.7364,
+            0.7281
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n22"
+          ],
+          "conn_lenient": [
+            "n22",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n25",
+          "title": "Essay draft \u2014 why genre fiction matters, opening",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n28",
+            "n21",
+            "n12",
+            "n26",
+            "n24"
+          ],
+          "top_scores": [
+            0.7408,
+            0.7392,
+            0.7326,
+            0.728,
+            0.724
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n27"
+          ],
+          "conn_lenient": [
+            "n27"
+          ]
+        },
+        {
+          "note_id": "n26",
+          "title": "Essay outline \u2014 attention and the long read",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n28",
+            "n12",
+            "n17",
+            "n27",
+            "n11"
+          ],
+          "top_scores": [
+            0.8154,
+            0.78,
+            0.7558,
+            0.7532,
+            0.7415
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n28"
+          ],
+          "conn_lenient": [
+            "n17",
+            "n32",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n27",
+          "title": "Voice memo \u2014 essay idea on rereading",
+          "note_type": "audio",
+          "cluster": "C6",
+          "retrieved": [
+            "n14",
+            "n17",
+            "n28",
+            "n02",
+            "n39"
+          ],
+          "top_scores": [
+            0.8128,
+            0.8039,
+            0.776,
+            0.7714,
+            0.7581
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n25"
+          ],
+          "conn_lenient": [
+            "n25"
+          ]
+        },
+        {
+          "note_id": "n28",
+          "title": "Draft \u2014 reading as resistance, first para only",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n26",
+            "n21",
+            "n27",
+            "n12",
+            "n25"
+          ],
+          "top_scores": [
+            0.8154,
+            0.7921,
+            0.776,
+            0.7679,
+            0.7408
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n26"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n29",
+          "title": "Random: what to have for dinner",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n20",
+            "n23",
+            "n30",
+            "n19",
+            "n34"
+          ],
+          "top_scores": [
+            0.6119,
+            0.6094,
+            0.6038,
+            0.5988,
+            0.5873
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n30",
+          "title": "Voice memo \u2014 train delay, nothing to do",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n33",
+            "n35",
+            "n07",
+            "n39",
+            "n14"
+          ],
+          "top_scores": [
+            0.7325,
+            0.6932,
+            0.6895,
+            0.6799,
+            0.6751
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n31",
+          "title": "Photo \u2014 sunset from the kitchen window",
+          "note_type": "image",
+          "cluster": "C7",
+          "retrieved": [
+            "n35",
+            "n20",
+            "n36",
+            "n23",
+            "n09"
+          ],
+          "top_scores": [
+            0.7363,
+            0.7154,
+            0.7029,
+            0.6898,
+            0.6746
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n32",
+          "title": "Random thought \u2014 phone addiction and boredom",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n20",
+            "n26",
+            "n10",
+            "n12",
+            "n28"
+          ],
+          "top_scores": [
+            0.6776,
+            0.6504,
+            0.6434,
+            0.6366,
+            0.6321
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n33",
+          "title": "Voice memo \u2014 dream, half-remembered",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n07",
+            "n27",
+            "n30",
+            "n39",
+            "n22"
+          ],
+          "top_scores": [
+            0.7526,
+            0.7391,
+            0.7325,
+            0.7293,
+            0.725
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n34",
+          "title": "Overheard \u2014 coffee shop, Tuesday",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n07",
+            "n30",
+            "n02",
+            "n10",
+            "n22"
+          ],
+          "top_scores": [
+            0.7201,
+            0.6706,
+            0.667,
+            0.6556,
+            0.6526
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n35",
+          "title": "Mood board \u2014 foggy path, for the novel",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n31",
+            "n30",
+            "n23",
+            "n39",
+            "n11"
+          ],
+          "top_scores": [
+            0.7363,
+            0.6932,
+            0.6821,
+            0.6719,
+            0.6674
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n40",
+            "n39"
+          ]
+        },
+        {
+          "note_id": "n36",
+          "title": "Reference \u2014 colour palette for the cover idea",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n37",
+            "n39",
+            "n12",
+            "n20",
+            "n31"
+          ],
+          "top_scores": [
+            0.7329,
+            0.7075,
+            0.7049,
+            0.7036,
+            0.7029
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n37",
+          "title": "Inspiration \u2014 architect's drafting table",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n20",
+            "n09",
+            "n36",
+            "n39",
+            "n23"
+          ],
+          "top_scores": [
+            0.7814,
+            0.743,
+            0.7329,
+            0.7216,
+            0.7069
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n38",
+          "title": "Screenshot \u2014 paragraph formatting I liked",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n11",
+            "n23",
+            "n12",
+            "n14",
+            "n26"
+          ],
+          "top_scores": [
+            0.74,
+            0.7134,
+            0.7046,
+            0.6938,
+            0.6851
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n39",
+          "title": "Voice memo \u2014 describing a painting for the collection",
+          "note_type": "audio",
+          "cluster": "C8",
+          "retrieved": [
+            "n27",
+            "n33",
+            "n14",
+            "n37",
+            "n09"
+          ],
+          "top_scores": [
+            0.7581,
+            0.7293,
+            0.7289,
+            0.7216,
+            0.7162
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        },
+        {
+          "note_id": "n40",
+          "title": "Photo \u2014 empty theatre, backstage",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n23",
+            "n20",
+            "n02",
+            "n21",
+            "n25"
+          ],
+          "top_scores": [
+            0.6889,
+            0.6773,
+            0.6735,
+            0.6655,
+            0.6583
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        }
+      ]
+    },
+    "paraphrase-multilingual-mpnet-base-v2": {
+      "mean_precision_strict": 0.14615384615384616,
+      "mean_precision_lenient": 0.1696969696969697,
+      "mean_latency_ms": 88.81261333323589,
+      "stdev_latency_ms": 1.5975835811948131,
+      "notes_with_conn_strict": 26,
+      "notes_with_conn_lenient": 33,
+      "per_note": [
+        {
+          "note_id": "n01",
+          "title": "In medias res \u2014 why it works",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n06",
+            "n26",
+            "n25",
+            "n08",
+            "n21"
+          ],
+          "top_scores": [
+            0.7668,
+            0.7582,
+            0.755,
+            0.7512,
+            0.7483
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03",
+            "n05"
+          ],
+          "conn_lenient": [
+            "n03",
+            "n05",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n02",
+          "title": "Voice memo \u2014 three act structure rant",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n14",
+            "n05",
+            "n27",
+            "n17",
+            "n22"
+          ],
+          "top_scores": [
+            0.8317,
+            0.8165,
+            0.7892,
+            0.7821,
+            0.7621
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n03",
+          "title": "Non-linear time \u2014 draft fragment",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n02",
+            "n11",
+            "n25",
+            "n01",
+            "n05"
+          ],
+          "top_scores": [
+            0.7485,
+            0.7204,
+            0.7199,
+            0.7096,
+            0.708
+          ],
+          "p_strict": 0.4,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n01",
+            "n02",
+            "n04"
+          ],
+          "conn_lenient": [
+            "n01",
+            "n02",
+            "n04"
+          ]
+        },
+        {
+          "note_id": "n04",
+          "title": "Endings \u2014 what they actually need to do",
+          "note_type": "text",
+          "cluster": "C1",
+          "retrieved": [
+            "n01",
+            "n06",
+            "n05",
+            "n19",
+            "n03"
+          ],
+          "top_scores": [
+            0.7255,
+            0.7041,
+            0.7,
+            0.6952,
+            0.691
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n03"
+          ],
+          "conn_lenient": [
+            "n03"
+          ]
+        },
+        {
+          "note_id": "n05",
+          "title": "Voice memo \u2014 scene transitions",
+          "note_type": "audio",
+          "cluster": "C1",
+          "retrieved": [
+            "n14",
+            "n02",
+            "n27",
+            "n17",
+            "n39"
+          ],
+          "top_scores": [
+            0.829,
+            0.8165,
+            0.764,
+            0.7549,
+            0.747
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n01"
+          ],
+          "conn_lenient": [
+            "n01"
+          ]
+        },
+        {
+          "note_id": "n06",
+          "title": "Characters who lie to themselves",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n08",
+            "n01",
+            "n22",
+            "n21",
+            "n25"
+          ],
+          "top_scores": [
+            0.8256,
+            0.7668,
+            0.7615,
+            0.7372,
+            0.7193
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n08",
+            "n07"
+          ],
+          "conn_lenient": [
+            "n08",
+            "n01",
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n07",
+          "title": "Voice memo \u2014 overheard on the bus",
+          "note_type": "audio",
+          "cluster": "C2",
+          "retrieved": [
+            "n33",
+            "n14",
+            "n39",
+            "n30",
+            "n10"
+          ],
+          "top_scores": [
+            0.762,
+            0.7394,
+            0.7375,
+            0.7355,
+            0.7331
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n10",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n10",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n08",
+          "title": "First person unreliable \u2014 draft notes for essay",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n06",
+            "n01",
+            "n22",
+            "n25",
+            "n21"
+          ],
+          "top_scores": [
+            0.8256,
+            0.7512,
+            0.7367,
+            0.7129,
+            0.7089
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n09",
+            "n06"
+          ],
+          "conn_lenient": [
+            "n09",
+            "n06"
+          ]
+        },
+        {
+          "note_id": "n09",
+          "title": "Photo \u2014 handwritten letter found in a secondhand book",
+          "note_type": "image",
+          "cluster": "C2",
+          "retrieved": [
+            "n12",
+            "n20",
+            "n38",
+            "n23",
+            "n14"
+          ],
+          "top_scores": [
+            0.7879,
+            0.7581,
+            0.7574,
+            0.7526,
+            0.7353
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n08"
+          ],
+          "conn_lenient": [
+            "n08"
+          ]
+        },
+        {
+          "note_id": "n10",
+          "title": "How people talk when nervous",
+          "note_type": "text",
+          "cluster": "C2",
+          "retrieved": [
+            "n14",
+            "n02",
+            "n07",
+            "n27",
+            "n22"
+          ],
+          "top_scores": [
+            0.7563,
+            0.7408,
+            0.7331,
+            0.7215,
+            0.7137
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n07"
+          ],
+          "conn_lenient": [
+            "n07"
+          ]
+        },
+        {
+          "note_id": "n11",
+          "title": "Sentence rhythm \u2014 something I keep ignoring",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n14",
+            "n12",
+            "n26",
+            "n05",
+            "n38"
+          ],
+          "top_scores": [
+            0.8039,
+            0.8012,
+            0.7554,
+            0.732,
+            0.7306
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n13",
+            "n14"
+          ],
+          "conn_lenient": [
+            "n13",
+            "n14",
+            "n38"
+          ]
+        },
+        {
+          "note_id": "n12",
+          "title": "Screenshot \u2014 underlined passage, Renata Adler",
+          "note_type": "image",
+          "cluster": "C3",
+          "retrieved": [
+            "n20",
+            "n11",
+            "n09",
+            "n26",
+            "n23"
+          ],
+          "top_scores": [
+            0.8031,
+            0.8012,
+            0.7879,
+            0.7761,
+            0.7588
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n13",
+          "title": "The problem with adjectives",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n15",
+            "n25",
+            "n08",
+            "n17",
+            "n35"
+          ],
+          "top_scores": [
+            0.7613,
+            0.7101,
+            0.702,
+            0.6883,
+            0.6863
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n15",
+            "n11"
+          ],
+          "conn_lenient": [
+            "n15",
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n14",
+          "title": "Voice memo \u2014 reading aloud experiment",
+          "note_type": "audio",
+          "cluster": "C3",
+          "retrieved": [
+            "n02",
+            "n05",
+            "n27",
+            "n11",
+            "n17"
+          ],
+          "top_scores": [
+            0.8317,
+            0.829,
+            0.8284,
+            0.8039,
+            0.7984
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n11"
+          ],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n15",
+          "title": "On metaphor \u2014 rough",
+          "note_type": "text",
+          "cluster": "C3",
+          "retrieved": [
+            "n13",
+            "n25",
+            "n24",
+            "n27",
+            "n28"
+          ],
+          "top_scores": [
+            0.7613,
+            0.7325,
+            0.7051,
+            0.7049,
+            0.6995
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n13"
+          ],
+          "conn_lenient": [
+            "n13"
+          ]
+        },
+        {
+          "note_id": "n16",
+          "title": "Writer's block is a symptom",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n11",
+            "n19",
+            "n02",
+            "n09",
+            "n12"
+          ],
+          "top_scores": [
+            0.7032,
+            0.6995,
+            0.6946,
+            0.6922,
+            0.6911
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n19",
+            "n18"
+          ],
+          "conn_lenient": [
+            "n19",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n17",
+          "title": "Voice memo \u2014 2am idea, probably useless",
+          "note_type": "audio",
+          "cluster": "C4",
+          "retrieved": [
+            "n14",
+            "n27",
+            "n02",
+            "n26",
+            "n05"
+          ],
+          "top_scores": [
+            0.7984,
+            0.7876,
+            0.7821,
+            0.7807,
+            0.7549
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n18",
+          "title": "Morning pages \u2014 does it actually work?",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n20",
+            "n12",
+            "n26",
+            "n11",
+            "n28"
+          ],
+          "top_scores": [
+            0.7531,
+            0.7504,
+            0.7433,
+            0.7276,
+            0.7136
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n16",
+            "n20"
+          ],
+          "conn_lenient": [
+            "n16",
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n19",
+          "title": "Random: deadlines are load-bearing",
+          "note_type": "text",
+          "cluster": "C4",
+          "retrieved": [
+            "n28",
+            "n20",
+            "n16",
+            "n04",
+            "n11"
+          ],
+          "top_scores": [
+            0.7283,
+            0.7109,
+            0.6995,
+            0.6952,
+            0.6898
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n16"
+          ],
+          "conn_lenient": [
+            "n16"
+          ]
+        },
+        {
+          "note_id": "n20",
+          "title": "Photo \u2014 my desk at its worst",
+          "note_type": "image",
+          "cluster": "C4",
+          "retrieved": [
+            "n12",
+            "n09",
+            "n37",
+            "n18",
+            "n38"
+          ],
+          "top_scores": [
+            0.8031,
+            0.7581,
+            0.756,
+            0.7531,
+            0.7446
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n18"
+          ],
+          "conn_lenient": [
+            "n37",
+            "n18"
+          ]
+        },
+        {
+          "note_id": "n21",
+          "title": "Le Guin \u2014 on the reader",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n01",
+            "n24",
+            "n06",
+            "n22",
+            "n28"
+          ],
+          "top_scores": [
+            0.7483,
+            0.7407,
+            0.7372,
+            0.7333,
+            0.7279
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n23",
+            "n22"
+          ],
+          "conn_lenient": [
+            "n23",
+            "n22"
+          ]
+        },
+        {
+          "note_id": "n22",
+          "title": "Voice memo \u2014 reading a Didion line",
+          "note_type": "audio",
+          "cluster": "C5",
+          "retrieved": [
+            "n27",
+            "n14",
+            "n02",
+            "n06",
+            "n33"
+          ],
+          "top_scores": [
+            0.7877,
+            0.7823,
+            0.7621,
+            0.7615,
+            0.7588
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n24",
+            "n21"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n23",
+          "title": "Photo \u2014 quote card on a caf\u00e9 wall",
+          "note_type": "image",
+          "cluster": "C5",
+          "retrieved": [
+            "n12",
+            "n09",
+            "n38",
+            "n39",
+            "n14"
+          ],
+          "top_scores": [
+            0.7588,
+            0.7526,
+            0.7409,
+            0.7168,
+            0.7111
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n21"
+          ],
+          "conn_lenient": [
+            "n21"
+          ]
+        },
+        {
+          "note_id": "n24",
+          "title": "Baldwin \u2014 on the purpose of art",
+          "note_type": "text",
+          "cluster": "C5",
+          "retrieved": [
+            "n25",
+            "n21",
+            "n01",
+            "n28",
+            "n22"
+          ],
+          "top_scores": [
+            0.7484,
+            0.7407,
+            0.7233,
+            0.7222,
+            0.7112
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n22"
+          ],
+          "conn_lenient": [
+            "n22",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n25",
+          "title": "Essay draft \u2014 why genre fiction matters, opening",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n01",
+            "n26",
+            "n24",
+            "n02",
+            "n22"
+          ],
+          "top_scores": [
+            0.755,
+            0.7536,
+            0.7484,
+            0.7359,
+            0.7347
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n27"
+          ],
+          "conn_lenient": [
+            "n27"
+          ]
+        },
+        {
+          "note_id": "n26",
+          "title": "Essay outline \u2014 attention and the long read",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n17",
+            "n12",
+            "n28",
+            "n01",
+            "n11"
+          ],
+          "top_scores": [
+            0.7807,
+            0.7761,
+            0.7753,
+            0.7582,
+            0.7554
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.4,
+          "conn_strict": [
+            "n28"
+          ],
+          "conn_lenient": [
+            "n17",
+            "n32",
+            "n28"
+          ]
+        },
+        {
+          "note_id": "n27",
+          "title": "Voice memo \u2014 essay idea on rereading",
+          "note_type": "audio",
+          "cluster": "C6",
+          "retrieved": [
+            "n14",
+            "n02",
+            "n22",
+            "n17",
+            "n33"
+          ],
+          "top_scores": [
+            0.8284,
+            0.7892,
+            0.7877,
+            0.7876,
+            0.7661
+          ],
+          "p_strict": 0.0,
+          "p_lenient": 0.0,
+          "conn_strict": [
+            "n25"
+          ],
+          "conn_lenient": [
+            "n25"
+          ]
+        },
+        {
+          "note_id": "n28",
+          "title": "Draft \u2014 reading as resistance, first para only",
+          "note_type": "text",
+          "cluster": "C6",
+          "retrieved": [
+            "n26",
+            "n27",
+            "n01",
+            "n12",
+            "n25"
+          ],
+          "top_scores": [
+            0.7753,
+            0.7639,
+            0.7463,
+            0.7439,
+            0.7325
+          ],
+          "p_strict": 0.2,
+          "p_lenient": 0.2,
+          "conn_strict": [
+            "n26"
+          ],
+          "conn_lenient": [
+            "n24",
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n29",
+          "title": "Random: what to have for dinner",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n31",
+            "n23",
+            "n35",
+            "n32",
+            "n36"
+          ],
+          "top_scores": [
+            0.6279,
+            0.588,
+            0.581,
+            0.5761,
+            0.5662
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n30",
+          "title": "Voice memo \u2014 train delay, nothing to do",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n14",
+            "n33",
+            "n07",
+            "n32",
+            "n39"
+          ],
+          "top_scores": [
+            0.7743,
+            0.7428,
+            0.7355,
+            0.719,
+            0.7143
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n31",
+          "title": "Photo \u2014 sunset from the kitchen window",
+          "note_type": "image",
+          "cluster": "C7",
+          "retrieved": [
+            "n35",
+            "n38",
+            "n23",
+            "n37",
+            "n36"
+          ],
+          "top_scores": [
+            0.7575,
+            0.7235,
+            0.6885,
+            0.6837,
+            0.6642
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n32",
+          "title": "Random thought \u2014 phone addiction and boredom",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n30",
+            "n10",
+            "n12",
+            "n11",
+            "n18"
+          ],
+          "top_scores": [
+            0.719,
+            0.701,
+            0.6942,
+            0.6924,
+            0.6761
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n26"
+          ]
+        },
+        {
+          "note_id": "n33",
+          "title": "Voice memo \u2014 dream, half-remembered",
+          "note_type": "audio",
+          "cluster": "C7",
+          "retrieved": [
+            "n14",
+            "n39",
+            "n27",
+            "n07",
+            "n22"
+          ],
+          "top_scores": [
+            0.7776,
+            0.7675,
+            0.7661,
+            0.762,
+            0.7588
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n34",
+          "title": "Overheard \u2014 coffee shop, Tuesday",
+          "note_type": "text",
+          "cluster": "C7",
+          "retrieved": [
+            "n30",
+            "n10",
+            "n07",
+            "n14",
+            "n02"
+          ],
+          "top_scores": [
+            0.7131,
+            0.7031,
+            0.696,
+            0.6948,
+            0.6797
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n35",
+          "title": "Mood board \u2014 foggy path, for the novel",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n31",
+            "n38",
+            "n37",
+            "n36",
+            "n13"
+          ],
+          "top_scores": [
+            0.7575,
+            0.7119,
+            0.6911,
+            0.6902,
+            0.6863
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n40",
+            "n39"
+          ]
+        },
+        {
+          "note_id": "n36",
+          "title": "Reference \u2014 colour palette for the cover idea",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n37",
+            "n39",
+            "n12",
+            "n23",
+            "n35"
+          ],
+          "top_scores": [
+            0.7629,
+            0.7185,
+            0.713,
+            0.6907,
+            0.6902
+          ],
+          "p_strict": null,
+          "p_lenient": null,
+          "conn_strict": [],
+          "conn_lenient": []
+        },
+        {
+          "note_id": "n37",
+          "title": "Inspiration \u2014 architect's drafting table",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n36",
+            "n20",
+            "n38",
+            "n12",
+            "n09"
+          ],
+          "top_scores": [
+            0.7629,
+            0.756,
+            0.7558,
+            0.7241,
+            0.7052
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n20"
+          ]
+        },
+        {
+          "note_id": "n38",
+          "title": "Screenshot \u2014 paragraph formatting I liked",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n09",
+            "n37",
+            "n12",
+            "n39",
+            "n14"
+          ],
+          "top_scores": [
+            0.7574,
+            0.7558,
+            0.749,
+            0.7483,
+            0.7471
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n11"
+          ]
+        },
+        {
+          "note_id": "n39",
+          "title": "Voice memo \u2014 describing a painting for the collection",
+          "note_type": "audio",
+          "cluster": "C8",
+          "retrieved": [
+            "n14",
+            "n33",
+            "n38",
+            "n05",
+            "n07"
+          ],
+          "top_scores": [
+            0.7702,
+            0.7675,
+            0.7483,
+            0.747,
+            0.7375
+          ],
+          "p_strict": null,
+          "p_lenient": 0.0,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        },
+        {
+          "note_id": "n40",
+          "title": "Photo \u2014 empty theatre, backstage",
+          "note_type": "image",
+          "cluster": "C8",
+          "retrieved": [
+            "n02",
+            "n05",
+            "n35",
+            "n38",
+            "n12"
+          ],
+          "top_scores": [
+            0.6965,
+            0.6913,
+            0.6825,
+            0.6721,
+            0.6641
+          ],
+          "p_strict": null,
+          "p_lenient": 0.2,
+          "conn_strict": [],
+          "conn_lenient": [
+            "n35"
+          ]
+        }
+      ]
+    }
+  }
+}

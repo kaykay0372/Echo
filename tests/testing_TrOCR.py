@@ -4,7 +4,7 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
 import time
 
-IMAGE_PATH = "test_image.png"
+IMAGE_PATH = "ex_image.png"
 MODEL_NAME = "microsoft/trocr-base-printed"
 
 # Text shorter than this is treated as "no text found"

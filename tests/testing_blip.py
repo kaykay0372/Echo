@@ -13,7 +13,7 @@ import time
 import os
 import sys
 
-IMAGE_FILE = "test_image.png"
+IMAGE_FILE = "ex_image.png"
 
 # STEP 1: Check the image file exists
 print("\nSTEP 1: Checking image file")
