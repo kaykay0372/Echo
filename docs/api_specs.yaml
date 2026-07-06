@@ -33,7 +33,10 @@ components:
 
         LinkType:
             type: string
-            enum: [semantic, manual]
+            enum: [automatic, manual]
+            description: >
+                "automatic" links are computed by the embedding pipeline.
+                "manual" links are created directly by the user.
 
         LinkStatus:
             type: string
@@ -136,6 +139,7 @@ components:
                 body:
                     type: string
                     nullable: true
+                    maxLength: 100000
                 show_generated_content:
                     type: boolean
                     default: true
@@ -150,6 +154,7 @@ components:
                 body:
                     type: string
                     nullable: true
+                    maxLength: 100000
                 is_favourite:
                     type: boolean
                 show_generated_content:
@@ -289,6 +294,12 @@ components:
         Job:
             type: object
             required: [id, job_type, status, retry_count, created_at]
+            description: >
+                Exactly one of note_id / attachment_id is set, never both,
+                never neither. "embed" and "generate_links" jobs reference
+                note_id; "caption", "ocr", and "transcribe" jobs reference
+                attachment_id. Enforced at the database layer via CHECK
+                constraint.
             properties:
                 id:
                     type: string
@@ -447,7 +458,7 @@ components:
                 format: uuid
             description: The UUID of the note.
 
-        LimitParam:
+        ConnectionsLimitParam:
             name: limit
             in: query
             required: false
@@ -456,7 +467,23 @@ components:
                 minimum: 1
                 maximum: 50
                 default: 5
-            description: Maximum number of results to return.
+            description: >
+                Maximum number of results to return. Default of 5 aligns with
+                the Precision@5 evaluation metric used for embedding model
+                selection.
+
+        NotesLimitParam:
+            name: limit
+            in: query
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                maximum: 200
+                default: 50
+            description: >
+                Maximum number of notes to return per page. Default of 50
+                is intended for general note browsing, not similarity ranking.
 
         IncludeDeleted:
             name: include_deleted
@@ -519,7 +546,7 @@ paths:
                 use GET /notes/{id} for full detail.
             tags: [Notes]
             parameters:
-                - $ref: "#/components/parameters/LimitParam"
+                - $ref: "#/components/parameters/NotesLimitParam"
                 - $ref: "#/components/parameters/IncludeDeleted"
                 - $ref: "#/components/parameters/NoteTypeFilter"
                 - name: search
@@ -692,10 +719,15 @@ paths:
             summary: Soft-delete a note (move to trash)
             description: >
                 Sets is_deleted=true and deleted_at to the current timestamp.
-                Updates ChromaDB metadata to is_deleted=true so the note is
-                excluded from all future similarity queries. The note can be
-                restored via PATCH /notes/{id} with is_deleted=false.
-                To permanently delete, call DELETE /notes/{id}/permanent.
+                Discards any pending_approval and rejected links for this
+                note. Confirmed links and note_tags are preserved but
+                excluded from query results while the note is_deleted.
+                Queued jobs for this note are cancelled; already-running jobs
+                are allowed to finish but their results are discarded rather
+                than committed. Updates ChromaDB metadata to is_deleted=true
+                so the note is excluded from all future similarity queries.
+                The note can be restored via POST /notes/{id}/restore.
+                To permanently delete, DELETE /notes/{id}/permanent.
             tags: [Notes]
             parameters:
                 - $ref: "#/components/parameters/NoteId"
@@ -750,6 +782,111 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
+    /notes/{id}/restore:
+        post:
+            operationId: restoreNote
+            summary: Restore a soft-deleted note
+            description: >
+                Sets is_deleted=false and deleted_at=null. Restores visibility
+                of any previously confirmed links and note_tags (these were
+                never deleted, only excluded from queries while is_deleted was
+                true). Queues a fresh "generate_links" job, since any
+                pending_approval links that existed before deletion were
+                discarded rather than preserved. Updates ChromaDB metadata to
+                is_deleted=false so the note becomes eligible again as a match
+                in other notes' similarity queries.
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            responses:
+                "200":
+                    description: Note restored.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Note"
+                "400":
+                    description: Note is not currently deleted.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}/attachments:
+        post:
+            operationId: createAttachment
+            summary: Upload a file attachment to a note
+            description: >
+                Uploads an image or audio file and associates it with an
+                existing note. Computes a SHA-256 content_hash on receipt for
+                duplicate detection (409 if a match already exists). On
+                success, queues the appropriate processing job (caption + ocr
+                for images, transcribe for audio) to the background queue.
+                The note's note_type must match the uploaded file_type
+                (e.g. an "image" note cannot receive an audio attachment).
+            tags: [Notes]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required: [file]
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+                                    description: The image or audio file to upload.
+            responses:
+                "201":
+                    description: Attachment created and processing job(s) queued.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Attachment"
+                "400":
+                    description: >
+                        Validation error, e.g. unsupported file type or file
+                        type does not match the note's note_type.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Note not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "409":
+                    description: >
+                        A file with this exact content already exists as an
+                        attachment (matched via content_hash).
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error409"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
     /notes/{id}/connections:
         get:
             operationId: getNoteConnections
@@ -763,7 +900,7 @@ paths:
             tags: [Notes]
             parameters:
                 - $ref: "#/components/parameters/NoteId"
-                - $ref: "#/components/parameters/LimitParam"
+                - $ref: "#/components/parameters/ConnectionsLimitParam"
             responses:
                 "200":
                     description: Array of similar notes with similarity scores.
@@ -799,11 +936,24 @@ paths:
                                       show_generated_content: true
                                       attachments: []
                 "404":
-                    description: Note not found or embedding not yet complete.
+                    description: Note not found.
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error404"
+                "409":
+                    description: >
+                        Note exists but its embedding is not yet complete
+                        (embedding_status is not "complete"). Distinct from
+                        404 so the client can distinguish "retry shortly" from
+                        "this id is invalid".
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                            example:
+                                error: "embedding_not_ready"
+                                detail: "Note's embedding is still processing. Try again shortly."
                 "500":
                     description: Internal server error.
                     content:
@@ -875,6 +1025,94 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
+    #  LINKS 
+    /links/{id}/confirm:
+        post:
+            operationId: confirmLink
+            summary: Confirm a pending link
+            description: >
+                Moves a link from "pending_approval" to "confirmed" and sets
+                confirmed_at to the current timestamp. Used by the connections
+                sidebar's approve action (F-24). Returns 400 if the link is
+                not currently pending_approval.
+            tags: [Links]
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: The UUID of the link.
+            responses:
+                "200":
+                    description: Link confirmed.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Link"
+                "400":
+                    description: Link is not in pending_approval status.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Link not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /links/{id}/reject:
+        post:
+            operationId: rejectLink
+            summary: Reject a pending link
+            description: >
+                Moves a link from "pending_approval" to "rejected". Used by
+                the connections sidebar's reject action (F-24). Returns 400
+                if the link is not currently pending_approval.
+            tags: [Links]
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: The UUID of the link.
+            responses:
+                "200":
+                    description: Link rejected.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Link"
+                "400":
+                    description: Link is not in pending_approval status.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Link not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
     #  GRAPH 
     /graph:
         get:
@@ -911,7 +1149,7 @@ paths:
                                 edges:
                                     - source: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                                       target: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
-                                      link_type: semantic
+                                      link_type: automatic
                                       similarity_score: 0.912
                                       status: confirmed
                                 stats:
@@ -941,7 +1179,7 @@ paths:
                   schema:
                       $ref: "#/components/schemas/JobStatus"
                   description: Filter by job status.
-                - $ref: "#/components/parameters/LimitParam"
+                - $ref: "#/components/parameters/NotesLimitParam"
             responses:
                 "200":
                     description: Array of jobs.
@@ -1004,6 +1242,8 @@ tags:
       description: Health and operational status endpoints.
     - name: Notes
       description: Note CRUD, connection retrieval, and bulk import.
+    - name: Links
+      description: Confirming or rejecting suggested connections between notes.
     - name: Graph
       description: Graph data for D3 visualisation.
     - name: Jobs
