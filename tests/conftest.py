@@ -24,7 +24,7 @@ def annotations(raw_dataset):
 
 @pytest.fixture(scope="session")
 def connection(annotations):
-    from metrics import build_connection_maps
+    from tests.embedding_model_evaluation.metrics import build_connection_maps
     return build_connection_maps(annotations)
 
 

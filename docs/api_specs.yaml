@@ -10,7 +10,7 @@ info:
         stores, retrieves, and surfaces the user's own existing notes.
 
 servers:
-    - url: http://localhost:1003
+    - url: http://127.0.0.1:8000/
       description: Local development server
 
 #  REUSABLE COMPONENTS
@@ -125,6 +125,41 @@ components:
                     items:
                         $ref: "#/components/schemas/Attachment"
                     description: Populated when include_attachments=true. Empty array otherwise.
+                tags:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Tag"
+                    description: >
+                        All tags assigned to this note, manual and automatic.
+                        Included on GET /notes/{id} responses.
+
+        Tag:
+            type: object
+            required: [id, name, tag_type, created_at]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                parent_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+                    description: >
+                        Null for top-level tags. If a parent tag is deleted,
+                        this becomes null (orphaned to top level) rather than
+                        the child being deleted.
+                tag_type:
+                    type: string
+                    enum: [manual, automatic]
+                    description: >
+                        "manual" tags are created by the user via POST /tags.
+                        "automatic" tags are created internally by a semantic
+                        tagging job and cannot be created via the API directly.
+                created_at:
+                    type: string
+                    format: date-time
 
         NoteCreate:
             type: object
@@ -502,6 +537,17 @@ components:
                 $ref: "#/components/schemas/NoteType"
             description: Filter notes by type.
 
+        TagIdFilter:
+            name: tag_id
+            in: query
+            required: false
+            schema:
+                type: string
+                format: uuid
+            description: >
+                Filter notes to only those assigned this tag. Served by the
+                idx_note_tags_tag_id index (reverse lookup from tag to notes).
+
 #  PATHS
 paths:
     #  HEALTH 
@@ -549,12 +595,13 @@ paths:
                 - $ref: "#/components/parameters/NotesLimitParam"
                 - $ref: "#/components/parameters/IncludeDeleted"
                 - $ref: "#/components/parameters/NoteTypeFilter"
+                - $ref: "#/components/parameters/TagIdFilter"
                 - name: search
                   in: query
                   required: false
                   schema:
-                      type: string
-                      maxLength: 200
+                    type: string
+                    maxLength: 200
                   description: Full-text search against title and body fields.
             responses:
                 "200":
@@ -566,20 +613,20 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/Note"
                             example:
-                                - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-                                  note_type: text
-                                  title: "Random thought: Why clouds?"
-                                  body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
-                                  embedding_text: "Random thought: Why clouds? There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
-                                  embedding_status: complete
-                                  show_generated_content: true
-                                  is_favourite: false
-                                  is_deleted: false
-                                  created_at: "2025-11-03T14:22:00Z"
-                                  updated_at: "2025-11-03T14:30:00Z"
-                                  deleted_at: null
-                                  word_count: 12
-                                  attachments: []
+                              - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                note_type: text
+                                title: "Random thought: Why clouds?"
+                                body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                embedding_text: "Random thought: Why clouds? There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                embedding_status: complete
+                                show_generated_content: true
+                                is_favourite: false
+                                is_deleted: false
+                                created_at: "2025-11-03T14:22:00Z"
+                                updated_at: "2025-11-03T14:30:00Z"
+                                deleted_at: null
+                                word_count: 12
+                                attachments: []
                 "500":
                     description: Internal server error.
                     content:
@@ -727,7 +774,7 @@ paths:
                 than committed. Updates ChromaDB metadata to is_deleted=true
                 so the note is excluded from all future similarity queries.
                 The note can be restored via POST /notes/{id}/restore.
-                To permanently delete, DELETE /notes/{id}/permanent.
+                To permanently delete, call DELETE /notes/{id}/permanent.
             tags: [Notes]
             parameters:
                 - $ref: "#/components/parameters/NoteId"
@@ -922,19 +969,19 @@ paths:
                             example:
                                 - similarity_score: 0.912
                                   note:
-                                      id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
-                                      note_type: text
-                                      title: "DOes life exist without water"
-                                      body: "There is a theory that water isn't necessary to sustain life..."
-                                      embedding_status: complete
-                                      is_favourite: false
-                                      is_deleted: false
-                                      created_at: "2025-10-28T09:15:00Z"
-                                      updated_at: "2025-10-28T09:15:00Z"
-                                      deleted_at: null
-                                      word_count: 22
-                                      show_generated_content: true
-                                      attachments: []
+                                    id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                                    note_type: text
+                                    title: "DOes life exist without water"
+                                    body: "There is a theory that water isn't necessary to sustain life..."
+                                    embedding_status: complete
+                                    is_favourite: false
+                                    is_deleted: false
+                                    created_at: "2025-10-28T09:15:00Z"
+                                    updated_at: "2025-10-28T09:15:00Z"
+                                    deleted_at: null
+                                    word_count: 22
+                                    show_generated_content: true
+                                    attachments: []
                 "404":
                     description: Note not found.
                     content:
@@ -1018,6 +1065,224 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error400"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    #  TAGS 
+    /tags:
+        post:
+            operationId: createTag
+            summary: Create a manual tag
+            description: >
+                Creates a tag with tag_type="manual". Automatic tags cannot be 
+                created via this endpoint (handled in semantic tagging job queue). 
+                Requesting tag_type="automatic" here returns 400.
+            tags: [Tags]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [name]
+                            properties:
+                                name:
+                                    type: string
+                                parent_id:
+                                    type: string
+                                    format: uuid
+                                    nullable: true
+            responses:
+                "201":
+                    description: Tag created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Tag"
+                "400":
+                    description: >
+                        Validation error, e.g. Attempting to set
+                        tag_type=automatic, or parent_id references a
+                        non-existent tag.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+        get:
+            operationId: listTags
+            summary: List all tags
+            description: Returns all tags, manual and automatic (flat list).
+            tags: [Tags]
+            responses:
+                "200":
+                    description: Array of tags.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Tag"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /tags/{id}:
+        patch:
+            operationId: updateTag
+            summary: Rename a tag or change its parent
+            description: >
+                Used both for renaming and for moving a tag to a different
+                point in the hierarchy (set parent_id to null to make it
+                top-level). Re-parenting is independent of deletion.
+            tags: [Tags]
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                    format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                parent_id:
+                                    type: string
+                                    format: uuid
+                                    nullable: true
+            responses:
+                "200":
+                    description: Tag updated.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Tag"
+                "400":
+                    description: parent_id references a non-existent tag, or would create an error cycle.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error400"
+                "404":
+                    description: Tag not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+        delete:
+            operationId: deleteTag
+            summary: Delete a tag
+            description: >
+                Deletes the tag and all its note_tags assignments. Child
+                tags are orphaned to the top level.
+            tags: [Tags]
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                    format: uuid
+            responses:
+                "204":
+                    description: Tag deleted. Child tags orphaned, not removed.
+                "404":
+                    description: Tag not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}/tags:
+        post:
+            operationId: assignTag
+            summary: Assign a tag to a note
+            tags: [Tags]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [tag_id]
+                            properties:
+                                tag_id:
+                                    type: string
+                                    format: uuid
+            responses:
+                "200":
+                    description: Tag was already assigned to this note. No change made.
+                "201":
+                    description: Tag newly assigned to this note.
+                "404":
+                    description: Note or tag not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
+                "500":
+                    description: Internal server error.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error500"
+
+    /notes/{id}/tags/{tag_id}:
+        delete:
+            operationId: removeTag
+            summary: Remove a tag assignment from a note
+            tags: [Tags]
+            parameters:
+                - $ref: "#/components/parameters/NoteId"
+                - name: tag_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "204":
+                    description: Assignment removed.
+                "404":
+                    description: Note, tag, or the assignment itself does not exist.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error404"
                 "500":
                     description: Internal server error.
                     content:
@@ -1177,7 +1442,7 @@ paths:
                   in: query
                   required: false
                   schema:
-                      $ref: "#/components/schemas/JobStatus"
+                    $ref: "#/components/schemas/JobStatus"
                   description: Filter by job status.
                 - $ref: "#/components/parameters/NotesLimitParam"
             responses:
@@ -1209,8 +1474,8 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
-                      format: uuid
+                    type: string
+                    format: uuid
             responses:
                 "200":
                     description: Job re-queued successfully.
@@ -1244,6 +1509,8 @@ tags:
       description: Note CRUD, connection retrieval, and bulk import.
     - name: Links
       description: Confirming or rejecting suggested connections between notes.
+    - name: Tags
+      description: Manual and automatic tag management and note assignment.
     - name: Graph
       description: Graph data for D3 visualisation.
     - name: Jobs

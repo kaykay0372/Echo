@@ -1,1 +1,3 @@
 chroma_db/
+.pytest_cache/
+_pychache_/

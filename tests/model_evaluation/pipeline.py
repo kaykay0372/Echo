@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass, field
 import chromadb
 from sentence_transformers import SentenceTransformer
-from metrics import (
+from tests.embedding_model_evaluation.metrics import (
     build_connection_maps,
     precision_at_k,
     aggregate_scores,

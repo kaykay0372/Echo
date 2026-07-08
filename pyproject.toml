@@ -1,0 +1,27 @@
+[project]
+name = "Echo"
+version = "1.0.0"
+description = "Local-first, multimodal sematic second brain"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[standard]",
+    "pydantic==2.13.4",
+    "sentence-transformers==5.4.1",
+    "chromadb==1.5.9",
+    "openai-whisper==20250625",
+    "transformers==4.57.6",
+    "numpy==2.2.6",
+    "Pillow==10.4.0",
+    "scikit-learn==1.7.2",
+    "surya-ocr==0.17.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.0",
+    "httpx",  # needed for FastAPI's TestClient
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
