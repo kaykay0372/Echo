@@ -7,7 +7,7 @@ info:
         Local-first REST API for Echo — a multimodal semantic second brain.
         All processing runs on the user's device. No external network calls are
         made during normal operation. The API never generates content; it only
-        stores, retrieves, and surfaces the user's own existing notes.
+        stores, retrieves and surfaces the user's own existing notes.
 
 servers:
     - url: http://127.0.0.1:8000/
@@ -16,7 +16,7 @@ servers:
 #  REUSABLE COMPONENTS
 components:
     schemas:
-        #  Enumerations 
+        #  Enumerations
         NoteType:
             type: string
             enum: [text, image, audio, canvas]
@@ -54,7 +54,7 @@ components:
             type: string
             enum: [shape, arrow, sticky_note, text_box, drawing, frame]
 
-        #  Core objects 
+        #  Core objects
         Note:
             type: object
             required:
@@ -332,7 +332,7 @@ components:
             description: >
                 Exactly one of note_id / attachment_id is set, never both,
                 never neither. "embed" and "generate_links" jobs reference
-                note_id; "caption", "ocr", and "transcribe" jobs reference
+                note_id; "caption", "ocr" and "transcribe" jobs reference
                 attachment_id. Enforced at the database layer via CHECK
                 constraint.
             properties:
@@ -434,7 +434,7 @@ components:
                             reason:
                                 type: string
 
-        #  Error schemas 
+        #  Error schemas
         Error400:
             type: object
             required: [error, detail]
@@ -482,7 +482,7 @@ components:
                     type: string
                     example: "An unexpected error occurred."
 
-    #  PARAMETERS 
+    #  PARAMETERS
     parameters:
         NoteId:
             name: id
@@ -550,7 +550,7 @@ components:
 
 #  PATHS
 paths:
-    #  HEALTH 
+    #  HEALTH
     /health:
         get:
             operationId: getHealth
@@ -581,7 +581,7 @@ paths:
                                     pending_jobs: 3
                                     failed_jobs: 0
 
-    #  NOTES 
+    #  NOTES
     /notes:
         get:
             operationId: listNotes
@@ -600,8 +600,8 @@ paths:
                   in: query
                   required: false
                   schema:
-                    type: string
-                    maxLength: 200
+                      type: string
+                      maxLength: 200
                   description: Full-text search against title and body fields.
             responses:
                 "200":
@@ -613,20 +613,20 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/Note"
                             example:
-                              - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-                                note_type: text
-                                title: "Random thought: Why clouds?"
-                                body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
-                                embedding_text: "Random thought: Why clouds? There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
-                                embedding_status: complete
-                                show_generated_content: true
-                                is_favourite: false
-                                is_deleted: false
-                                created_at: "2025-11-03T14:22:00Z"
-                                updated_at: "2025-11-03T14:30:00Z"
-                                deleted_at: null
-                                word_count: 12
-                                attachments: []
+                                - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                                  note_type: text
+                                  title: "Random thought: Why clouds?"
+                                  body: "There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                  embedding_text: "Random thought: Why clouds? There is so much wonder in clouds. We have always been taught that they are bodies of water vapour, but what if they're so much more?"
+                                  embedding_status: complete
+                                  show_generated_content: true
+                                  is_favourite: false
+                                  is_deleted: false
+                                  created_at: "2025-11-03T14:22:00Z"
+                                  updated_at: "2025-11-03T14:30:00Z"
+                                  deleted_at: null
+                                  word_count: 12
+                                  attachments: []
                 "500":
                     description: Internal server error.
                     content:
@@ -801,7 +801,7 @@ paths:
             description: >
                 Irreversibly removes the note from SQLite, its embedding vector
                 from ChromaDB, all associated links, jobs, note_tags, canvas_items
-                rows, and any files on disk. SQLite row is deleted last so that
+                rows and any files on disk. SQLite row is deleted last so that
                 partial failures are recoverable. Note must already be soft-deleted
                 (is_deleted=true) before this endpoint can be called.
             tags: [Notes]
@@ -942,7 +942,7 @@ paths:
                 Queries ChromaDB for the most semantically similar notes
                 using approximate nearest-neighbour (ANN) search on the stored
                 384-dimension embedding vector. Excludes the note itself,
-                soft-deleted notes, and canvas notes. Returns notes ordered by
+                soft-deleted notes and canvas notes. Returns notes ordered by
                 descending cosine similarity.
             tags: [Notes]
             parameters:
@@ -969,19 +969,19 @@ paths:
                             example:
                                 - similarity_score: 0.912
                                   note:
-                                    id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
-                                    note_type: text
-                                    title: "DOes life exist without water"
-                                    body: "There is a theory that water isn't necessary to sustain life..."
-                                    embedding_status: complete
-                                    is_favourite: false
-                                    is_deleted: false
-                                    created_at: "2025-10-28T09:15:00Z"
-                                    updated_at: "2025-10-28T09:15:00Z"
-                                    deleted_at: null
-                                    word_count: 22
-                                    show_generated_content: true
-                                    attachments: []
+                                      id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                                      note_type: text
+                                      title: "DOes life exist without water"
+                                      body: "There is a theory that water isn't necessary to sustain life..."
+                                      embedding_status: complete
+                                      is_favourite: false
+                                      is_deleted: false
+                                      created_at: "2025-10-28T09:15:00Z"
+                                      updated_at: "2025-10-28T09:15:00Z"
+                                      deleted_at: null
+                                      word_count: 22
+                                      show_generated_content: true
+                                      attachments: []
                 "404":
                     description: Note not found.
                     content:
@@ -1008,7 +1008,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
-    #  BATCH 
+    #  BATCH
     /notes/batch:
         post:
             operationId: batchImportNotes
@@ -1072,7 +1072,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
-    #  TAGS 
+    #  TAGS
     /tags:
         post:
             operationId: createTag
@@ -1106,7 +1106,7 @@ paths:
                 "400":
                     description: >
                         Validation error, e.g. Attempting to set
-                        tag_type=automatic, or parent_id references a
+                        tag_type=automatic or parent_id references a
                         non-existent tag.
                     content:
                         application/json:
@@ -1154,8 +1154,8 @@ paths:
                   in: path
                   required: true
                   schema:
-                    type: string
-                    format: uuid
+                      type: string
+                      format: uuid
             requestBody:
                 required: true
                 content:
@@ -1177,7 +1177,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Tag"
                 "400":
-                    description: parent_id references a non-existent tag, or would create an error cycle.
+                    description: parent_id references a non-existent tag or would create an error cycle.
                     content:
                         application/json:
                             schema:
@@ -1207,8 +1207,8 @@ paths:
                   in: path
                   required: true
                   schema:
-                    type: string
-                    format: uuid
+                      type: string
+                      format: uuid
             responses:
                 "204":
                     description: Tag deleted. Child tags orphaned, not removed.
@@ -1278,7 +1278,7 @@ paths:
                 "204":
                     description: Assignment removed.
                 "404":
-                    description: Note, tag, or the assignment itself does not exist.
+                    description: Note, tag or the assignment itself does not exist.
                     content:
                         application/json:
                             schema:
@@ -1290,7 +1290,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
-    #  LINKS 
+    #  LINKS
     /links/{id}/confirm:
         post:
             operationId: confirmLink
@@ -1378,7 +1378,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
-    #  GRAPH 
+    #  GRAPH
     /graph:
         get:
             operationId: getGraph
@@ -1392,7 +1392,7 @@ paths:
             tags: [Graph]
             responses:
                 "200":
-                    description: Graph data with nodes, edges, and aggregate statistics.
+                    description: Graph data with nodes, edges and aggregate statistics.
                     content:
                         application/json:
                             schema:
@@ -1428,21 +1428,21 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error500"
 
-    #  JOBS 
+    #  JOBS
     /jobs:
         get:
             operationId: listJobs
             summary: List background jobs
             description: >
                 Returns all jobs ordered by created_at descending. Used by the
-                process queue panel (!F-52) to show running, pending, and failed jobs.
+                process queue panel (!F-52) to show running, pending and failed jobs.
             tags: [Jobs]
             parameters:
                 - name: status
                   in: query
                   required: false
                   schema:
-                    $ref: "#/components/schemas/JobStatus"
+                      $ref: "#/components/schemas/JobStatus"
                   description: Filter by job status.
                 - $ref: "#/components/parameters/NotesLimitParam"
             responses:
@@ -1474,8 +1474,8 @@ paths:
                   in: path
                   required: true
                   schema:
-                    type: string
-                    format: uuid
+                      type: string
+                      format: uuid
             responses:
                 "200":
                     description: Job re-queued successfully.
@@ -1506,7 +1506,7 @@ tags:
     - name: System
       description: Health and operational status endpoints.
     - name: Notes
-      description: Note CRUD, connection retrieval, and bulk import.
+      description: Note CRUD, connection retrieval and bulk import.
     - name: Links
       description: Confirming or rejecting suggested connections between notes.
     - name: Tags

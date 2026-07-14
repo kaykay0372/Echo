@@ -1,4 +1,4 @@
-# Loads two sentence embedding models, encodes some test sentences, and
+# Loads two sentence embedding models, encodes some test sentences and
 # computes similarity scores between them.
 
 from sentence_transformers import SentenceTransformer
@@ -19,7 +19,7 @@ print("\n STEP 2: Encoding 5 test sentences")
 sentences = [
     "A musician records a melody idea on their phone at 3am.",  # creative/music
     "The artist sketched a new character concept in her notebook.",  # creative/visual
-    "I need to buy milk, eggs, and bread from the supermarket.",  # unrelated (shopping)
+    "I need to buy milk, eggs and bread from the supermarket.",  # unrelated (shopping)
     "Improvisation is central to jazz composition and performance.",  # creative/music
     "She photographed the colour palette she wanted to use.",  # creative/visual
 ]

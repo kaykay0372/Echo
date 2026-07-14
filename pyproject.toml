@@ -9,7 +9,7 @@ dependencies = [
     "sentence-transformers==5.4.1",
     "chromadb==1.5.9",
     "openai-whisper==20250625",
-    "transformers==4.57.6",
+    "transformers==5.13.0",
     "numpy==2.2.6",
     "Pillow==10.4.0",
     "scikit-learn==1.7.2",
@@ -25,3 +25,4 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_mode = "auto"

@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass, field
 import chromadb
 from sentence_transformers import SentenceTransformer
-from tests.embedding_model_evaluation.metrics import (
+from metrics import (
     build_connection_maps,
     precision_at_k,
     aggregate_scores,
@@ -21,13 +21,15 @@ from tests.embedding_model_evaluation.metrics import (
 @dataclass
 class EvalConfig:
     k: int = 5
-    dataset_path: str = "./data/40_notes.json"
+    dataset_path: str = "../../data/40_notes.json"
     # Can't pass a mutable object to the class def
     models: list[str] = field(
         default_factory=lambda: [
             "all-MiniLM-L6-v2",  # smallest, but fastest model
             "all-mpnet-base-v2",  # more accurate, but slower model
             "paraphrase-multilingual-mpnet-base-v2",  # multilingual model
+            "BAAI/bge-base-en-v1.5",  # retrieval-tuned, no prefix applied
+            "nomic-ai/nomic-embed-text-v1.5",  # retrieval-tuned, no prefix applied
         ]
     )
     batch_size: int = 16
