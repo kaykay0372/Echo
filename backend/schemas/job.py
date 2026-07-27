@@ -1,18 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from backend.dependencies import JobStatus, JobType
 
 
 class Job(BaseModel):
-    # model_config = ConfigDict(from_attributes=True)
-
     id: str
     note_id: str | None = None
-    attachment_id: str | None = (
-        None  # exactly one of note_id/attachment_id is set (DB CHECK)
-    )
+    attachment_id: str | None = None
     job_type: JobType
     status: JobStatus
     error_message: str | None = None

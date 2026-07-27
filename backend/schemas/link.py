@@ -1,13 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from backend.dependencies import LinkStatus, LinkType
 
 
 class Link(BaseModel):
-    # model_config = ConfigDict(from_attributes=True)
-
     id: str
     source_note_id: str
     target_note_id: str

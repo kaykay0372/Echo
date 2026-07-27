@@ -1,12 +1,9 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class Attachment(BaseModel):
-    # !!!drop it once you know for certain you'll always build Note from dict(row).
-    # model_config = ConfigDict(from_attributes=True)
-
     id: str
     note_id: str
     file_path: str

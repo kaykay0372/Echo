@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from backend.schemas.attachment import Attachment
 from backend.dependencies import EmbeddingStatus, NoteType
@@ -8,7 +8,6 @@ from backend.schemas.tag import Tag
 
 
 class Note(BaseModel):
-    # model_config = ConfigDict(from_attributes=True)
 
     id: str
     note_type: NoteType
@@ -42,14 +41,12 @@ class NoteUpdate(BaseModel):
 
 
 class NoteConnection(BaseModel):
-    """Item shape returned by GET /notes/{id}/connections."""
-
     note: Note
     similarity_score: float = Field(ge=0.0, le=1.0)
 
 
 class BatchImportRequest(BaseModel):
-    notes: list[NoteCreate] = Field(min_length=1, max_length=50)
+    notes: list[dict] = Field(min_length=1, max_length=50)
 
 
 class BatchImportFailure(BaseModel):

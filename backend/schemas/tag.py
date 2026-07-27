@@ -1,13 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from backend.dependencies import TagType
 
 
 class Tag(BaseModel):
-    # model_config = ConfigDict(from_attributes=True)
-
     id: str
     name: str
     parent_id: str | None = None
@@ -18,6 +16,7 @@ class Tag(BaseModel):
 class TagCreate(BaseModel):
     name: str
     parent_id: str | None = None
+    tag_type: str | None = None
 
 
 class TagUpdate(BaseModel):

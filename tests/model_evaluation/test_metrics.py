@@ -2,7 +2,7 @@
 # All connections derived from real 40_notes.json via conftest.
 
 import pytest
-from tests.embedding_model_evaluation.metrics import (
+from tests.model_evaluation.metrics import (
     build_connection_maps,
     precision_at_k,
     aggregate_scores,

@@ -13,8 +13,8 @@ class GraphNode(BaseModel):
 
 
 class GraphEdge(BaseModel):
-    source: str  # references GraphNode.id
-    target: str  # references GraphNode.id
+    source: str
+    target: str
     link_type: LinkType
     similarity_score: float | None = None
     status: LinkStatus

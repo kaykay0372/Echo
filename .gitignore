@@ -1,3 +1,7 @@
 chroma_db/
 .pytest_cache/
 __pycache__/
+data/model_cache/
+chroma_data/
+tests/backend/data
+*.db

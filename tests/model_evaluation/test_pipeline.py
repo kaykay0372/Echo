@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock
-from tests.embedding_model_evaluation.pipeline import query_top_k, store_embeddings
+from tests.model_evaluation.pipeline import query_top_k, store_embeddings
 
 
 @pytest.fixture
@@ -25,7 +25,10 @@ def live_collection(notes):
 
     import chromadb
     from sentence_transformers import SentenceTransformer
-    from tests.embedding_model_evaluation.pipeline import compute_embeddings, store_embeddings
+    from tests.embedding_model_evaluation.pipeline import (
+        compute_embeddings,
+        store_embeddings,
+    )
 
     model = SentenceTransformer("all-MiniLM-L6-v2")
     texts = [n["embedding_text"] for n in notes]
@@ -117,7 +120,10 @@ class TestFullPipeline:
     ):
         """Ensures that lenient connections are at least as good as strict connections."""
 
-        from tests.embedding_model_evaluation.metrics import precision_at_k, aggregate_scores
+        from tests.embedding_model_evaluation.metrics import (
+            precision_at_k,
+            aggregate_scores,
+        )
 
         per_note = []
         for note in notes:

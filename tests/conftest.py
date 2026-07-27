@@ -6,6 +6,7 @@ import pytest
 
 DATASET_PATH = os.path.join(os.path.dirname(__file__), "data", "40_notes.json")
 
+
 @pytest.fixture(scope="session")
 def raw_dataset():
     with open(DATASET_PATH, "r", encoding="utf-8") as f:
@@ -24,7 +25,8 @@ def annotations(raw_dataset):
 
 @pytest.fixture(scope="session")
 def connection(annotations):
-    from tests.embedding_model_evaluation.metrics import build_connection_maps
+    from tests.model_evaluation.metrics import build_connection_maps
+
     return build_connection_maps(annotations)
 
 
