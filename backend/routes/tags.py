@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime, timezone
+from typing import Literal
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from backend.dependencies import (
     Error400,
@@ -37,15 +38,12 @@ async def _fetch_tag_row(db, tag_id: str) -> dict | None:
     responses={400: {"model": Error400}, 500: {"model": Error500}},
 )
 async def create_tag(payload: TagCreate, db=Depends(get_db)):
-    """Always creates tag of type "manual"."""
-
-    if payload.tag_type is not None and payload.tag_type != "manual":
-        raise ValidationError("tag_type must be 'manual'")
+    """Creates a new tag and returns it. """
 
     tag_id = str(uuid.uuid4())
     now = _now_iso()
     await db.execute(
-        "INSERT INTO tags (id, name, parent_id, tag_type, created_at) VALUES (?, ?, ?, 'manual', ?)",
+        "INSERT INTO tags (id, name, parent_id, created_at) VALUES (?, ?, ?, ?)",
         (tag_id, payload.name, payload.parent_id, now),
     )
     await db.commit()
@@ -53,10 +51,24 @@ async def create_tag(payload: TagCreate, db=Depends(get_db)):
 
 
 @router.get("/tags", response_model=list[Tag], responses={500: {"model": Error500}})
-async def list_tags(db=Depends(get_db)):
-    """Flat list of manual and automatic tags."""
+async def list_tags(
+    sort: Literal["name", "created_at"] = "name",
+    order: Literal["asc", "desc"] = "asc",
+    limit: int | None = Query(default=None, ge=1, le=500),
+    db=Depends(get_db),
+):
+    """Flat list of all tags, sorted and optionally limited server-side. """
 
-    cursor = await db.execute("SELECT * FROM tags")
+    column = "name" if sort == "name" else "created_at"
+    direction = "ASC" if order == "asc" else "DESC"
+
+    query = f"SELECT * FROM tags ORDER BY {column} {direction}"
+    params = []
+    if limit is not None:
+        query += " LIMIT ?"
+        params.append(limit)
+
+    cursor = await db.execute(query, params)
     rows = await cursor.fetchall()
     columns = [d[0] for d in cursor.description]
     return [Tag(**dict(zip(columns, row))) for row in rows]

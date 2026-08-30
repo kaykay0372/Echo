@@ -208,7 +208,7 @@ async def test_list_notes_excludes_deleted_by_default(client):
     await client.delete(f"/notes/{deleted}")
 
     response = await client.get("/notes")
-    ids = [n["id"] for n in response.json()]
+    ids = [n["id"] for n in response.json()["notes"]]
     assert kept in ids
     assert deleted not in ids
 
@@ -218,7 +218,7 @@ async def test_list_notes_filters_by_note_type(client):
     await client.post("/notes", json={"note_type": "canvas"})
 
     response = await client.get("/notes", params={"note_type": "canvas"})
-    types = {n["note_type"] for n in response.json()}
+    types = {n["note_type"] for n in response.json()["notes"]}
     assert types == {"canvas"}
 
 
@@ -277,7 +277,20 @@ async def test_connections_returns_similar_notes_excluding_self(client):
     assert note_b in returned_ids
 
 
-async def test_create_attachment_duplicate_content_returns_409(client):
+async def test_create_attachment_duplicate_content_same_note_returns_409(client):
+    note_id = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+
+    files = {"file": ("test.png", b"identical-bytes", "image/png")}
+    first = await client.post(f"/notes/{note_id}/attachments", files=files)
+    assert first.status_code == 201
+
+    second = await client.post(f"/notes/{note_id}/attachments", files=files)
+    assert second.status_code == 409
+    assert second.json()["existing_note_id"] == note_id
+
+
+async def test_create_attachment_duplicate_content_different_note_is_allowed(client):
+    # Fixed schema limitation
     note_a = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
     note_b = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
 
@@ -286,8 +299,8 @@ async def test_create_attachment_duplicate_content_returns_409(client):
     assert first.status_code == 201
 
     second = await client.post(f"/notes/{note_b}/attachments", files=files)
-    assert second.status_code == 409
-    assert second.json()["existing_note_id"] == note_a
+    assert second.status_code == 201
+    assert second.json()["id"] != first.json()["id"]
 
 
 async def test_create_attachment_image_queues_caption_and_ocr(client):
@@ -320,6 +333,97 @@ async def test_create_attachment_missing_note_returns_404(client):
     files = {"file": ("test.png", b"bytes", "image/png")}
     response = await client.post(f"/notes/{uuid.uuid4()}/attachments", files=files)
     assert response.status_code == 404
+
+
+async def _create_attachment(
+    client, note_id, filename="test.png", content=b"bytes", content_type="image/png"
+):
+    files = {"file": (filename, content, content_type)}
+    response = await client.post(f"/notes/{note_id}/attachments", files=files)
+    return response.json()
+
+
+async def test_delete_attachment_removes_row_and_file(client):
+    note_id = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    attachment = await _create_attachment(
+        client, note_id, content=b"unique-delete-bytes"
+    )
+    file_path = Path(
+        (
+            await client.app.state.db.execute_fetchall(
+                "SELECT file_path FROM attachments WHERE id = ?", (attachment["id"],)
+            )
+        )[0][0]
+    )
+    assert file_path.exists()
+
+    response = await client.delete(f"/notes/{note_id}/attachments/{attachment['id']}")
+    assert response.status_code == 204
+
+    remaining = await client.app.state.db.execute_fetchall(
+        "SELECT id FROM attachments WHERE id = ?", (attachment["id"],)
+    )
+    assert remaining == []
+    assert not file_path.exists()
+
+
+async def test_delete_attachment_cascades_to_its_jobs(client):
+    note_id = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    attachment = await _create_attachment(
+        client, note_id, content=b"unique-cascade-deletion-bytes"
+    )
+
+    await client.delete(f"/notes/{note_id}/attachments/{attachment['id']}")
+
+    remaining_jobs = await client.app.state.db.execute_fetchall(
+        "SELECT id FROM jobs WHERE attachment_id = ?", (attachment["id"],)
+    )
+    assert remaining_jobs == []
+
+
+async def test_delete_attachment_nonexistent_returns_404(client):
+    note_id = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    response = await client.delete(f"/notes/{note_id}/attachments/{uuid.uuid4()}")
+    assert response.status_code == 404
+
+
+async def test_delete_attachment_missing_note_returns_404(client):
+    response = await client.delete(f"/notes/{uuid.uuid4()}/attachments/{uuid.uuid4()}")
+    assert response.status_code == 404
+
+
+async def test_delete_attachment_belonging_to_a_different_note_returns_404(client):
+    note_a = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    note_b = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    attachment = await _create_attachment(
+        client, note_a, content=b"unique-crosscheck-bytes"
+    )
+
+    response = await client.delete(f"/notes/{note_b}/attachments/{attachment['id']}")
+    assert response.status_code == 404
+
+    still_there = await client.app.state.db.execute_fetchall(
+        "SELECT id FROM attachments WHERE id = ?", (attachment["id"],)
+    )
+    assert still_there != []
+
+
+async def test_delete_attachment_survives_file_already_missing_on_disk(client):
+    note_id = (await client.post("/notes", json={"note_type": "text"})).json()["id"]
+    attachment = await _create_attachment(
+        client, note_id, content=b"unique-vanished-bytes"
+    )
+    file_path = Path(
+        (
+            await client.app.state.db.execute_fetchall(
+                "SELECT file_path FROM attachments WHERE id = ?", (attachment["id"],)
+            )
+        )[0][0]
+    )
+    file_path.unlink()  # simulate the file having been removed unconventionally
+
+    response = await client.delete(f"/notes/{note_id}/attachments/{attachment['id']}")
+    assert response.status_code == 204
 
 
 async def test_malformed_uuid_returns_422(client):
@@ -378,7 +482,7 @@ async def test_list_notes_include_deleted_true_shows_deleted(client):
     await client.delete(f"/notes/{note_id}")
 
     response = await client.get("/notes", params={"include_deleted": True})
-    ids = [n["id"] for n in response.json()]
+    ids = [n["id"] for n in response.json()["notes"]]
     assert note_id in ids
 
 
@@ -392,7 +496,7 @@ async def test_list_notes_search_matches_title_or_body(client):
     )
 
     response = await client.get("/notes", params={"search": "echo"})
-    titles = [n["title"] for n in response.json()]
+    titles = [n["title"] for n in response.json()["notes"]]
     assert "Project Echo" in titles
     assert "Unrelated" not in titles
 
@@ -407,7 +511,7 @@ async def test_list_notes_filters_by_tag_id(client):
 
     db = client.app.state.db
     await db.execute(
-        "INSERT INTO tags (id, name, tag_type, created_at) VALUES ('tag1', 'work', 'manual', '2026-01-01T00:00:00Z')"
+        "INSERT INTO tags (id, name, created_at) VALUES ('tag1', 'work', '2026-01-01T00:00:00Z')"
     )
     await db.execute(
         "INSERT INTO note_tags (note_id, tag_id) VALUES (?, 'tag1')", (tagged,)
@@ -415,7 +519,7 @@ async def test_list_notes_filters_by_tag_id(client):
     await db.commit()
 
     response = await client.get("/notes", params={"tag_id": "tag1"})
-    ids = [n["id"] for n in response.json()]
+    ids = [n["id"] for n in response.json()["notes"]]
     assert tagged in ids
     assert untagged not in ids
 
@@ -597,8 +701,3 @@ async def test_note_word_count_zero_for_empty_body(client):
 async def test_note_defaults_show_generated_content_true(client):
     response = await client.post("/notes", json={"note_type": "text", "body": "x"})
     assert response.json()["show_generated_content"] is True
-
-
-# ---------------------------------------------------------------------------
-# Spec cases confirmed against the actual uploaded test_spec docx.
-# ---------------------------------------------------------------------------

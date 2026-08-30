@@ -2,7 +2,7 @@
 name = "Echo"
 version = "1.0.0"
 description = "Local-first, multimodal sematic second brain"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "fastapi[standard]",
     "pydantic==2.13.4",
@@ -12,8 +12,9 @@ dependencies = [
     "transformers==4.57.3",
     "numpy==2.2.6",
     "Pillow==10.4.0",
-    "scikit-learn==1.7.2",
-    "surya-ocr==0.17.1"
+    "surya-ocr==0.17.1",
+    "aiosqlite==0.22.1",
+    "imageio-ffmpeg==0.6.0",
 ]
 
 [project.optional-dependencies]
@@ -26,3 +27,6 @@ dev = [
 testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
+
+[tool.setuptools]
+packages = ["backend"]

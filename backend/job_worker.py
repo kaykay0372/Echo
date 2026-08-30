@@ -3,7 +3,7 @@ import asyncio
 import functools
 import uuid
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from PIL import Image
 
@@ -110,6 +110,19 @@ async def _run_job(app, job: dict) -> None:
                 )
                 await db.commit()
                 return
+
+        # Cancelling a job while it's running.
+        cursor = await db.execute("SELECT status FROM jobs WHERE id = ?", (job["id"],))
+        row = await cursor.fetchone()
+        if row is None or row[0] == "discarded":
+            await db.execute(
+                "UPDATE jobs SET completed_at = ?, "
+                "error_message = COALESCE(error_message, 'Cancelled while running') "
+                "WHERE id = ?",
+                (now, job["id"]),
+            )
+            await db.commit()
+            return
 
         await _apply_job_result(app, job, result)
 
@@ -319,6 +332,48 @@ async def _apply_job_result(app, job: dict, result: dict) -> None:
                 )
             except aiosqlite.IntegrityError:
                 pass  # a link between this pair already exists in some state
+
+
+async def recover_orphaned_jobs(db: aiosqlite.Connection) -> int:
+    """Resets any job stuck at 'running' back to 'queued'."""
+
+    cursor = await db.execute(
+        "UPDATE jobs SET status = 'queued', started_at = NULL WHERE status = 'running'"
+    )
+    await db.commit()
+    return cursor.rowcount
+
+
+JOB_CLEANUP_AGE_THRESHOLD = timedelta(days=7)
+
+
+def _parse_created_at(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+        tzinfo=timezone.utc
+    )
+
+
+async def cleanup_old_jobs(db: aiosqlite.Connection) -> int:
+    """Automatically deletes 'complete' and 'discarded' jobs whose created_at is 7+ days old."""
+
+    cursor = await db.execute(
+        "SELECT id, created_at FROM jobs WHERE status IN ('complete', 'discarded')"
+    )
+    rows = await cursor.fetchall()
+
+    now = datetime.now(timezone.utc)
+    stale_ids = [
+        job_id
+        for job_id, created_at in rows
+        if now - _parse_created_at(created_at) >= JOB_CLEANUP_AGE_THRESHOLD
+    ]
+    if not stale_ids:
+        return 0
+
+    placeholders = ",".join("?" for _ in stale_ids)
+    await db.execute(f"DELETE FROM jobs WHERE id IN ({placeholders})", stale_ids)
+    await db.commit()
+    return len(stale_ids)
 
 
 async def job_worker_loop(app):

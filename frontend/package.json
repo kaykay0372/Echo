@@ -1,0 +1,31 @@
+{
+	"name": "echo_frontend",
+	"version": "1.0.0",
+	"description": "Local-first, multimodal sematic second brain",
+	"type": "module",
+	"main": "main.js",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"author": "Kayleigh Kivits",
+	"license": "ISC",
+	"devDependencies": {
+		"happy-dom": "^20.11.2",
+		"vite": "^7.3.0",
+		"vitest": "^4.1.10"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2.11.1",
+		"@tauri-apps/plugin-shell": "^2.0.0",
+		"@tiptap/core": "^2.27.2",
+		"@tiptap/extension-image": "^2.27.2",
+		"@tiptap/extension-link": "^2.27.2",
+		"@tiptap/extension-placeholder": "^2.27.2",
+		"@tiptap/starter-kit": "^2.27.2",
+		"d3": "^7.9.0"
+	}
+}

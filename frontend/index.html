@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Echo</title>
+		<link rel="stylesheet" href="/src/styles/themes.css" />
+		<link rel="stylesheet" href="/src/styles/shell.css" />
+	</head>
+	<body>
+		<div class="app-shell">
+			<header class="titlebar" role="banner" data-tauri-drag-region>
+				<span class="titlebar-logo">echo</span>
+
+				<div class="titlebar-search" role="search">
+					<div class="titlebar-search-field">
+						<svg
+							class="titlebar-search-icon"
+							aria-hidden="true"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<circle cx="11" cy="11" r="7" />
+							<path d="M21 21l-4.3-4.3" />
+						</svg>
+						<label for="global-search" class="sr-only">Search notes</label>
+						<input
+							id="global-search"
+							type="search"
+							placeholder="Search notes..."
+							autocomplete="off"
+							aria-expanded="false"
+							aria-controls="search-results"
+							role="combobox"
+							aria-autocomplete="list"
+						/>
+					</div>
+					<ul
+						id="search-results"
+						class="search-results"
+						role="listbox"
+						aria-label="Search results"
+						hidden
+					></ul>
+				</div>
+
+				<div class="titlebar-window-controls">
+					<button type="button" id="btn-minimize" aria-label="Minimize window">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path d="M5 12h14" />
+						</svg>
+					</button>
+					<button type="button" id="btn-maximize" aria-label="Maximize window">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<rect x="5" y="5" width="14" height="14" rx="2" />
+						</svg>
+					</button>
+					<button type="button" id="btn-close" class="is-danger" aria-label="Close window">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path d="M6 6l12 12M18 6L6 18" />
+						</svg>
+					</button>
+				</div>
+			</header>
+
+			<div class="app-body">
+				<nav id="nav" class="nav" aria-label="Main navigation">
+					<button
+						type="button"
+						id="nav-pin-toggle"
+						class="nav-pin-toggle"
+						aria-pressed="false"
+						aria-label="Keep navigation panel open"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path d="M4 6h16M4 12h16M4 18h16" />
+						</svg>
+					</button>
+
+					<a href="#/note/new" class="nav-new-note">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path d="M12 5v14M5 12h14" />
+						</svg>
+						<span>New note</span>
+					</a>
+
+					<a href="#/" class="nav-link" data-route="/">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<circle cx="6" cy="6" r="2" />
+							<circle cx="18" cy="6" r="2" />
+							<circle cx="12" cy="18" r="2" />
+							<path d="M7.5 7l3.5 9M16.5 7L13 16" />
+						</svg>
+						<span>Graph</span>
+					</a>
+
+					<a href="#/settings" class="nav-link" data-route="/settings">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<circle cx="12" cy="12" r="3" />
+							<path
+								d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"
+							/>
+						</svg>
+						<span>Settings</span>
+					</a>
+
+					<!-- Recents -->
+					<div class="nav-section" data-section="recent">
+						<button aria-expanded="true" aria-controls="list-recent" id="header-recent">
+							<div class="nav-section-header-row">
+								<span class="nav-section-label">Recents</span>
+								<svg
+									class="chevron"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									aria-hidden="true"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
+							</div>
+						</button>
+						<ul id="list-recent" aria-labelledby="header-recent">
+							<li data-placeholder>Loading...</li>
+						</ul>
+					</div>
+
+					<!-- Favourites -->
+					<div class="nav-section" data-section="favourites">
+						<button aria-expanded="true" aria-controls="list-favourites" id="header-favourites">
+							<div class="nav-section-header-row">
+								<span class="nav-section-label">Favourites</span>
+								<svg
+									class="chevron"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									aria-hidden="true"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
+							</div>
+						</button>
+						<ul id="list-favourites" aria-labelledby="header-favourites">
+							<li data-placeholder>Loading...</li>
+						</ul>
+					</div>
+
+					<!-- Tags -->
+					<div class="nav-section" data-section="tags">
+						<button aria-expanded="true" aria-controls="tags-body" id="header-tags">
+							<div class="nav-section-header-row">
+								<span class="nav-section-label">Tags</span>
+								<svg
+									class="chevron"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									aria-hidden="true"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
+							</div>
+						</button>
+						<div id="tags-body" aria-labelledby="header-tags">
+							<ul id="list-tags">
+								<li data-placeholder>Loading...</li>
+							</ul>
+							<a href="#/tags" class="nav-section-all-link" data-route="/tags">All tags &rarr;</a>
+						</div>
+					</div>
+
+					<!-- Trash -->
+					<a href="#/trash" class="nav-link" data-route="/trash" style="margin-top: auto">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path
+								d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z"
+							/>
+						</svg>
+						<span>Trash</span>
+					</a>
+				</nav>
+
+				<main class="content" id="content" tabindex="-1">
+					<!-- Notes / Graph / Settings / editor pages mount here. -->
+				</main>
+			</div>
+		</div>
+
+		<!-- Main body pages -->
+		<template id="editor-template">
+			<div class="editor-layout">
+				<div class="editor-main">
+					<div class="editor-title-row">
+						<input
+							type="text"
+							id="editor-title"
+							class="editor-title"
+							placeholder="Untitled"
+							aria-label="Note title"
+						/>
+					</div>
+					<div id="tags-field"></div>
+					<div class="editor-meta">
+						<button
+							type="button"
+							id="favourite-btn"
+							class="editor-favourite-btn"
+							aria-pressed="false"
+						></button>
+						<span id="save-status" class="editor-save-status" aria-live="polite"></span>
+						<span id="word-count" class="editor-word-count"></span>
+						<span id="editor-meta-dates" class="editor-meta-dates"></span>
+					</div>
+					<div id="editor-content" class="editor-content"></div>
+					<div id="attachments-field"></div>
+				</div>
+				<aside class="right-panel" id="right-panel" aria-label="Note details">
+					<button
+						type="button"
+						id="right-panel-pin-toggle"
+						class="right-panel-pin-toggle"
+						aria-pressed="false"
+						aria-label="Keep connections panel open"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							aria-hidden="true"
+						>
+							<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+							<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+						</svg>
+						<span id="right-panel-badge" class="right-panel-badge" hidden></span>
+					</button>
+					<div id="right-panel-connections" class="right-panel-connections">
+						<h2 class="right-panel-heading">Connections</h2>
+						<div id="right-panel-connections-body"></div>
+					</div>
+				</aside>
+			</div>
+		</template>
+
+		<template id="notes-list-template">
+			<div class="notes-list">
+				<div class="notes-list-heading-row">
+					<h1 class="notes-list-heading"></h1>
+					<a href="#/" class="notes-list-graph-view-link" hidden>View as graph</a>
+				</div>
+				<p class="notes-list-status" aria-live="polite"></p>
+				<table class="notes-list-table">
+					<thead>
+						<tr>
+							<th scope="col">Title</th>
+							<th scope="col">Updated</th>
+							<th scope="col">Words</th>
+							<th scope="col"><span class="visually-hidden">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				<button type="button" id="notes-list-load-more" class="notes-list-load-more" hidden>Load more</button>
+			</div>
+		</template>
+
+		<template id="tags-template">
+			<div class="tags-page">
+				<h1 class="tags-page-heading">Tags</h1>
+				<p class="tags-page-status" aria-live="polite"></p>
+				<ul class="tags-page-list"></ul>
+			</div>
+		</template>
+
+		<template id="settings-template">
+			<div class="settings-page">
+				<h1 class="settings-page-heading">Settings</h1>
+
+				<section class="settings-section" aria-labelledby="settings-links-heading">
+					<h2 id="settings-links-heading" class="settings-section-heading">Semantic link behaviour</h2>
+					<div class="settings-section-control" role="group" aria-labelledby="settings-links-heading">
+						<button type="button" class="settings-toggle-btn" data-link-mode="manual">
+							Manual approval
+						</button>
+						<button type="button" class="settings-toggle-btn" data-link-mode="auto">Auto-confirm</button>
+					</div>
+					<p class="settings-section-note">
+						Manual approval shows a pending queue with Confirm/Reject in the note editor's Connections
+						panel. Auto-confirm hides those actions and folds pending links straight into the list.
+					</p>
+				</section>
+
+				<section class="settings-section" aria-labelledby="settings-shortcuts-heading">
+					<h2 id="settings-shortcuts-heading" class="settings-section-heading">Keyboard shortcuts</h2>
+					<p class="settings-section-note">
+						Ctrl-based shortcuts (Windows/Linux). Mac support (Cmd) is planned but not yet built or verified
+						due to time constraints.
+					</p>
+					<h3 class="settings-shortcuts-list-group-heading">Navigation</h3>
+					<dl class="settings-shortcuts-list">
+						<div class="settings-shortcuts-list-row">
+							<dt>New note</dt>
+							<dd>Ctrl + N</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Focus search</dt>
+							<dd>Ctrl + Shift + F</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Go to notes list</dt>
+							<dd>Ctrl + Shift + L</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Go to graph</dt>
+							<dd>Ctrl + Shift + G</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Go to tags</dt>
+							<dd>Ctrl + Shift + T</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Go to settings</dt>
+							<dd>Ctrl + ,</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Toggle nav sidebar</dt>
+							<dd>Ctrl + \</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Toggle connections panel</dt>
+							<dd>Ctrl + .</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Close/blur current field</dt>
+							<dd>Esc</dd>
+						</div>
+					</dl>
+					<h3 class="settings-shortcuts-list-group-heading">In a note</h3>
+					<dl class="settings-shortcuts-list">
+						<div class="settings-shortcuts-list-row">
+							<dt>Save now</dt>
+							<dd>Ctrl + S</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Toggle favourite</dt>
+							<dd>Ctrl + D</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Move to trash</dt>
+							<dd>Ctrl + Backspace</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Bold</dt>
+							<dd>Ctrl + B</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Italic</dt>
+							<dd>Ctrl + I</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Undo / Redo</dt>
+							<dd>Ctrl + Z / Ctrl + Shift + Z</dd>
+						</div>
+						<div class="settings-shortcuts-list-row">
+							<dt>Bullet / numbered list</dt>
+							<dd>Ctrl + Shift + 8 / 7</dd>
+						</div>
+					</dl>
+					<p class="settings-section-note">Shortcut customisation isn't built yet.</p>
+				</section>
+			</div>
+		</template>
+
+		<template id="graph-template">
+			<div class="graph-page">
+				<div class="graph-toolbar">
+					<div class="graph-stats" aria-label="Graph statistics">
+						<span data-stat="notes"></span>
+						<span data-stat="links"></span>
+						<span data-stat="embeddings"></span>
+					</div>
+					<a href="#/list" class="graph-list-view-link">View as list</a>
+				</div>
+				<div class="graph-canvas" tabindex="-1">
+					<div class="graph-detail-panel" hidden></div>
+				</div>
+				<p id="graph-live-region" class="visually-hidden" aria-live="polite"></p>
+			</div>
+		</template>
+
+		<script type="module" src="/src/main.js"></script>
+	</body>
+</html>

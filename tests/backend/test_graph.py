@@ -73,7 +73,7 @@ async def test_graph_only_confirmed_links_with_live_endpoints_as_edges(client):
     ).json()["id"]
 
     db = client.app.state.db
-    now = "2026-01-01T00:00:00Z"
+    now = "2026-01-01T00:00:00.000Z"
 
     # Confirmed link between two live notes should appear.
     source1, target1 = sorted([note_a, note_b])

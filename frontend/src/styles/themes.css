@@ -1,0 +1,55 @@
+:root {
+	--royal-blue: #4169e1;
+	--royal-blue-tint: #eaefff;
+	--sunflower: #ffc72c;
+
+	--background: #ffffff;
+	--foreground: #14181a;
+	--secondary: #f5f6f6;
+	--muted-foreground: #6b7478;
+	--accent-hover: #eceeee;
+	--primary: var(--royal-blue);
+	--primary-foreground: #ffffff;
+	--destructive: #b3261e;
+	--destructive-foreground: #ffffff;
+	--border: var(--royal-blue);
+
+	--font-ui: -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	font-family: var(--font-ui);
+	font-size: 16px; /* rem base (every size elsewhere in the app is relative to this) */
+	color: var(--foreground);
+	background: var(--background);
+}
+
+:focus-visible {
+	outline: 0.125rem solid var(--royal-blue);
+	outline-offset: 0.125rem;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+button {
+	font-family: inherit;
+}

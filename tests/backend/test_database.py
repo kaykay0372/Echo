@@ -7,7 +7,7 @@ import pytest
 from backend.database import check_sqlite_alive, init_sqlite, recover_interrupted_jobs
 
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "backend" / "sql_schema.sql"
-TEST_TIMESTAMP = "2026-01-01T00:00:00Z"
+TEST_TIMESTAMP = "2026-01-01T00:00:00.000Z"
 
 
 async def _fresh_db(tmp_path, db_name: str = "test.db") -> aiosqlite.Connection:
@@ -248,13 +248,12 @@ async def test_deleting_parent_tag_orphans_children(tmp_path):
     parent_id, child_a, child_b = str(uuid4()), str(uuid4()), str(uuid4())
 
     await db.execute(
-        "INSERT INTO tags (id, name, tag_type, created_at) VALUES (?, 'parent', 'manual', ?)",
+        "INSERT INTO tags (id, name, created_at) VALUES (?, 'parent', ?)",
         (parent_id, TEST_TIMESTAMP),
     )
     for cid, name in ((child_a, "child-a"), (child_b, "child-b")):
         await db.execute(
-            "INSERT INTO tags (id, name, parent_id, tag_type, created_at) "
-            "VALUES (?, ?, ?, 'manual', ?)",
+            "INSERT INTO tags (id, name, parent_id, created_at) " "VALUES (?, ?, ?, ?)",
             (cid, name, parent_id, TEST_TIMESTAMP),
         )
     await db.commit()

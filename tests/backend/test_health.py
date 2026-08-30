@@ -27,7 +27,7 @@ async def test_degraded_status_on_model_unavailability(client_with_overrides):
 
 async def test_queue_counts_are_accurate(client):
     db = app.state.db
-    now = "2026-01-01T00:00:00Z"
+    now = "2026-01-01T00:00:00.000Z"
 
     for _ in range(3):
         await db.execute(

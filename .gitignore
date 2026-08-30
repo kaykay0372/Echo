@@ -5,3 +5,15 @@ data/model_cache/
 chroma_data/
 tests/backend/data
 *.db
+node_modules/
+package-lock.json
+echo.db-shm
+echo.db-wal
+*.png
+*.mp3
+*.mp4
+*.egg-info
+dist/
+build/
+bootstrap.py
+echo-backend.spec

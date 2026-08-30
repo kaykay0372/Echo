@@ -3,16 +3,22 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+
 import aiosqlite
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from typing import Annotated
+from pydantic import BaseModel
+from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 
 from backend.dependencies import (
     ConnectionsLimit,
     IncludeDeleted,
     NotesLimit,
     NoteTypeFilter,
+    LinkStatus,
     SearchQuery,
     TagIdFilter,
+    FavouriteFilter,
+    DeletedOnly,
     Error400,
     Error404,
     Error409,
@@ -24,6 +30,7 @@ from backend.dependencies import (
     get_chroma,
 )
 from backend.schemas.attachment import Attachment
+from backend.schemas.link import Link
 from backend.schemas.note import (
     BatchImportRequest,
     BatchImportResponse,
@@ -32,6 +39,7 @@ from backend.schemas.note import (
     NoteConnection,
     NoteCreate,
     NoteUpdate,
+    NoteListResponse,
 )
 
 router = APIRouter(prefix="/notes", tags=["Notes"])
@@ -140,50 +148,73 @@ async def _create_note_row(db, payload: NoteCreate) -> dict:
     return await _fetch_note_row(db, note_id)
 
 
-@router.get("", response_model=list[Note], responses={500: {"model": Error500}})
-async def list_notes(
-    limit: NotesLimit = 50,
-    include_deleted: IncludeDeleted = False,
-    note_type: NoteTypeFilter = None,
-    tag_id: TagIdFilter = None,
-    search: SearchQuery = None,
-    db=Depends(get_db),
-):
-    """List notes, optionally filtered by type, tag or search query. Default limit 50, max 1000. """
+class NotesListParams(BaseModel):
+    limit: NotesLimit = 50
+    include_deleted: IncludeDeleted = False
+    note_type: NoteTypeFilter = None
+    tag_id: TagIdFilter = None
+    search: SearchQuery = None
+    favourite: FavouriteFilter = None
+    deleted_only: DeletedOnly = False
+    cursor: str | None = None
+
+
+@router.get("", response_model=NoteListResponse, responses={500: {"model": Error500}})
+async def list_notes(params: Annotated[NotesListParams, Query()], db=Depends(get_db)):
+    """List notes, optionally filtered by type, tag or search query. Default limit 50, max 200."""
 
     query = "SELECT DISTINCT n.* FROM notes n"
     joins = []
     conditions = []
-    params: list = []
+    sql_params: list = []
 
-    if tag_id:
+    if params.tag_id:
         joins.append("JOIN note_tags nt ON nt.note_id = n.id")
         conditions.append("nt.tag_id = ?")
-        params.append(tag_id)
+        sql_params.append(params.tag_id)
 
-    if not include_deleted:
+    if params.deleted_only:
+        conditions.append("n.is_deleted = 1")
+    elif not params.include_deleted:
         conditions.append("n.is_deleted = 0")
-    if note_type:
+    if params.note_type:
         conditions.append("n.note_type = ?")
-        params.append(note_type.value)
-    if search:
+        sql_params.append(params.note_type.value)
+    if params.search:
         conditions.append("(n.title LIKE ? OR n.body LIKE ?)")
-        search_param = f"%{search}%"
-        params.extend([search_param, search_param])
+        search_param = f"%{params.search}%"
+        sql_params.extend([search_param, search_param])
+    if params.favourite is not None:
+        conditions.append("n.is_favourite = ?")
+        sql_params.append(1 if params.favourite else 0)
 
     if joins:
         query += " " + " ".join(joins)
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
-    query += " ORDER BY n.updated_at DESC LIMIT ?"
-    params.append(limit)
+    if params.cursor:
+        try:
+            cursor_updated_at, cursor_id = params.cursor.split("_", 1)
+        except ValueError:
+            raise ValidationError("Malformed cursor")
+        conditions.append("(n.updated_at, n.id) < (?, ?)")
+        sql_params.extend([cursor_updated_at, cursor_id])
+        query += " WHERE " if "WHERE" not in query else " AND "
+        query += "(n.updated_at, n.id) < (?, ?)"
+    query += " ORDER BY n.updated_at DESC, n.id DESC LIMIT ?"
+    sql_params.append(params.limit)
 
-    cursor = await db.execute(query, params)
-    rows = await cursor.fetchall()
-    columns = [d[0] for d in cursor.description]
+    db_cursor = await db.execute(query, sql_params)
+    rows = await db_cursor.fetchall()
+    columns = [d[0] for d in db_cursor.description]
     note_rows = [dict(zip(columns, row)) for row in rows]
 
-    return [await _to_note_response(db, row) for row in note_rows]
+    notes = [await _to_note_response(db, row) for row in note_rows]
+    next_cursor = None
+    if len(note_rows) == params.limit:
+        last = note_rows[-1]
+        next_cursor = f"{last['updated_at']}_{last['id']}"
+    return NoteListResponse(notes=notes, next_cursor=next_cursor)
 
 
 @router.post(
@@ -193,7 +224,7 @@ async def list_notes(
     responses={400: {"model": Error400}, 500: {"model": Error500}},
 )
 async def create_note(payload: NoteCreate, db=Depends(get_db)):
-    """Asynchronous note creation. """
+    """Asynchronous note creation."""
 
     note_row = await _create_note_row(db, payload)
 
@@ -207,7 +238,7 @@ async def create_note(payload: NoteCreate, db=Depends(get_db)):
     responses={400: {"model": Error400}, 500: {"model": Error500}},
 )
 async def batch_import_notes(payload: BatchImportRequest, db=Depends(get_db)):
-    """Each note is created independently and errors are reported per-note in the response. """
+    """Each note is created independently and errors are reported per-note in the response."""
 
     created: list[Note] = []
     failed: list[BatchImportFailure] = []
@@ -229,7 +260,7 @@ async def batch_import_notes(payload: BatchImportRequest, db=Depends(get_db)):
     responses={404: {"model": Error404}, 500: {"model": Error500}},
 )
 async def get_note(note_id: uuid.UUID, db=Depends(get_db)):
-    """Retrieves a note and serves 404 if note is soft-deleted (is_deleted=true). """
+    """Retrieves a note and serves 404 if note is soft-deleted (is_deleted=true)."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id)
@@ -249,7 +280,7 @@ async def get_note(note_id: uuid.UUID, db=Depends(get_db)):
     },
 )
 async def update_note(note_id: uuid.UUID, payload: NoteUpdate, db=Depends(get_db)):
-    """Partial update, body/title changes re-queue an embed job. """
+    """Partial update, body/title changes re-queue an embed job."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id)
@@ -293,7 +324,7 @@ async def update_note(note_id: uuid.UUID, payload: NoteUpdate, db=Depends(get_db
     responses={404: {"model": Error404}, 500: {"model": Error500}},
 )
 async def delete_note(note_id: uuid.UUID, db=Depends(get_db)):
-    """Soft-deletes a note. """
+    """Soft-deletes a note."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id)
@@ -325,7 +356,7 @@ async def delete_note(note_id: uuid.UUID, db=Depends(get_db)):
 async def permanently_delete_note(
     note_id: uuid.UUID, db=Depends(get_db), chroma=Depends(get_chroma)
 ):
-    """Requires the note to already be soft-deleted to permanently delete a note. """
+    """Requires the note to already be soft-deleted to permanently delete a note."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id, include_deleted=True)
@@ -354,7 +385,7 @@ async def permanently_delete_note(
     },
 )
 async def restore_note(note_id: uuid.UUID, db=Depends(get_db)):
-    """Restore a soft-deleted note. """
+    """Restore a soft-deleted note."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id, include_deleted=True)
@@ -388,7 +419,7 @@ async def restore_note(note_id: uuid.UUID, db=Depends(get_db)):
 async def create_attachment(
     note_id: uuid.UUID, file: UploadFile = File(...), db=Depends(get_db)
 ):
-    """Create a new attachment and assign it a unique hash. """
+    """Create a new attachment and assign it a unique hash."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id)
@@ -399,12 +430,13 @@ async def create_attachment(
     content_hash = hashlib.sha256(file_bytes).hexdigest()
 
     cursor = await db.execute(
-        "SELECT id, note_id FROM attachments WHERE content_hash = ?", (content_hash,)
+        "SELECT id, note_id FROM attachments WHERE content_hash = ? AND note_id = ?",
+        (content_hash, note_id),
     )
     existing = await cursor.fetchone()
     if existing:
         raise ConflictError(
-            "An attachment with this content already exists",
+            "An attachment with this content already exists on this note",
             existing_note_id=existing[1],
         )
 
@@ -437,6 +469,48 @@ async def create_attachment(
     return Attachment(**dict(zip(columns, row)))
 
 
+async def _fetch_attachment_row(db, attachment_id: str) -> dict | None:
+    cursor = await db.execute(
+        "SELECT * FROM attachments WHERE id = ?", (attachment_id,)
+    )
+    row = await cursor.fetchone()
+    if row is None:
+        return None
+    columns = [d[0] for d in cursor.description]
+    return dict(zip(columns, row))
+
+
+@router.delete(
+    "/{note_id}/attachments/{attachment_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"model": Error404}, 500: {"model": Error500}},
+)
+async def delete_attachment(
+    note_id: uuid.UUID, attachment_id: uuid.UUID, db=Depends(get_db)
+):
+    """Removes an attachment and its file. Cascades to any queued/running
+    caption/ocr/transcribe job for it via the schema's ON DELETE CASCADE."""
+
+    note_id = str(note_id)
+    attachment_id = str(attachment_id)
+
+    note_row = await _fetch_note_row(db, note_id)
+    if note_row is None:
+        raise NotFoundError(f"Note {note_id} not found")
+
+    attachment_row = await _fetch_attachment_row(db, attachment_id)
+    if attachment_row is None or attachment_row["note_id"] != note_id:
+        raise NotFoundError(f"Attachment {attachment_id} not found on note {note_id}")
+
+    await db.execute("DELETE FROM attachments WHERE id = ?", (attachment_id,))
+    await db.commit()
+
+    try:
+        Path(attachment_row["file_path"]).unlink()
+    except OSError:
+        pass  # file already missing/moved
+
+
 @router.get(
     "/{note_id}/connections",
     response_model=list[NoteConnection],
@@ -452,7 +526,7 @@ async def get_note_connections(
     db=Depends(get_db),
     chroma=Depends(get_chroma),
 ):
-    """Generate links after embedding is completed. """
+    """Generate links after embedding is completed."""
 
     note_id = str(note_id)
     note_row = await _fetch_note_row(db, note_id)
@@ -494,3 +568,50 @@ async def get_note_connections(
         )
 
     return connections
+
+
+_VALID_LINK_STATUSES = ("pending_approval", "confirmed", "rejected")
+
+
+@router.get(
+    "/{note_id}/links",
+    response_model=list[Link],
+    responses={
+        400: {"model": Error400},
+        404: {"model": Error404},
+        500: {"model": Error500},
+    },
+)
+async def list_note_connections(
+    note_id: uuid.UUID,
+    status_filter: str | None = Query(default=None, alias="status"),
+    db=Depends(get_db),
+):
+    """Lists connections in either direction for this note, newest first."""
+
+    note_id = str(note_id)
+    note_row = await _fetch_note_row(db, note_id)
+    if note_row is None:
+        raise NotFoundError(f"Note {note_id} not found")
+
+    if status_filter is not None and status_filter not in _VALID_LINK_STATUSES:
+        raise ValidationError(f"Invalid status filter: {status_filter}")
+
+    query = (
+        "SELECT l.* FROM links l "
+        "JOIN notes s ON s.id = l.source_note_id "
+        "JOIN notes t ON t.id = l.target_note_id "
+        "WHERE (l.source_note_id = ? OR l.target_note_id = ?) "
+        "AND s.is_deleted = 0 AND t.is_deleted = 0"
+    )
+    sql_params = [note_id, note_id]
+    if status_filter is not None:
+        query += " AND l.status = ?"
+        sql_params.append(status_filter)
+    query += " ORDER BY l.created_at DESC"
+
+    db_cursor = await db.execute(query, sql_params)
+    rows = await db_cursor.fetchall()
+    columns = [d[0] for d in db_cursor.description]
+
+    return [Link(**dict(zip(columns, row))) for row in rows]

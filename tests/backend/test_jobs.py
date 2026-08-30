@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -12,6 +13,8 @@ from backend.routes.jobs import router as jobs_router
 from backend.routes.notes import router as notes_router
 
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "backend" / "sql_schema.sql"
+
+DELETE_AGE_DAYS = 8
 
 
 @pytest_asyncio.fixture
@@ -32,11 +35,17 @@ async def client(tmp_path):
     await app.state.db.close()
 
 
+def _timestamp(days_ago=0):
+    """ISO-8601 timestamp days before now (0 = now)."""
+    ts = datetime.now(timezone.utc) - timedelta(days=days_ago)
+    return ts.strftime("%Y-%m-%dT%H:%M:%S.") + f"{ts.microsecond // 1000:03d}Z"
+
+
 async def _insert_job(
     client,
     job_type="generate_links",
     status="queued",
-    created_at="2026-01-01T00:00:00Z",
+    created_at="2026-01-01T00:00:00.000Z",
     note_id=None,
 ):
     note_id = (
@@ -55,8 +64,8 @@ async def _insert_job(
 
 
 async def test_jobs_lists_jobs_ordered_by_created_at_descending(client):
-    older = await _insert_job(client, created_at="2025-01-01T00:00:00Z")
-    newer = await _insert_job(client, created_at="2026-06-01T00:00:00Z")
+    older = await _insert_job(client, created_at="2025-01-01T00:00:00.000Z")
+    newer = await _insert_job(client, created_at="2026-06-01T00:00:00.000Z")
 
     response = await client.get("/jobs")
     ids = [j["id"] for j in response.json()]
@@ -112,3 +121,67 @@ async def test_list_jobs_respects_limit(client):
 
     response = await client.get("/jobs", params={"limit": 1})
     assert len(response.json()) == 1
+
+
+async def test_delete_failed_job_succeeds_regardless_of_age(client):
+    job_id = await _insert_job(client, status="failed", created_at=_timestamp())
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 204
+    remaining = await client.get("/jobs")
+    assert job_id not in [j["id"] for j in remaining.json()]
+
+
+async def test_delete_discarded_job_succeeds_regardless_of_age(client):
+    job_id = await _insert_job(client, status="discarded", created_at=_timestamp())
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 204
+
+
+async def test_delete_recent_queued_job_returns_400(client):
+    job_id = await _insert_job(client, status="queued", created_at=_timestamp())
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 400
+    remaining = await client.get("/jobs")
+    assert job_id in [j["id"] for j in remaining.json()]
+
+
+async def test_delete_old_queued_job_succeeds(client):
+    job_id = await _insert_job(
+        client, status="queued", created_at=_timestamp(DELETE_AGE_DAYS)
+    )
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 204
+
+
+async def test_delete_recent_complete_job_returns_400(client):
+    job_id = await _insert_job(client, status="complete", created_at=_timestamp())
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 400
+
+
+async def test_delete_old_complete_job_succeeds(client):
+    job_id = await _insert_job(
+        client, status="complete", created_at=_timestamp(DELETE_AGE_DAYS)
+    )
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 204
+
+
+async def test_delete_running_job_always_returns_400_regardless_of_age(client):
+    job_id = await _insert_job(
+        client, status="running", created_at=_timestamp(DELETE_AGE_DAYS)
+    )
+    response = await client.delete(f"/jobs/{job_id}")
+    assert response.status_code == 400
+    remaining = await client.get("/jobs")
+    assert job_id in [j["id"] for j in remaining.json()]
+
+
+async def test_delete_nonexistent_job_returns_404(client):
+    response = await client.delete(f"/jobs/{uuid4()}")
+    assert response.status_code == 404
+
+
+async def test_delete_malformed_uuid_returns_422(client):
+    response = await client.delete("/jobs/not-a-valid-uuid")
+    assert response.status_code == 422

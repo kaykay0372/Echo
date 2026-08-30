@@ -44,6 +44,10 @@ class NoteConnection(BaseModel):
     note: Note
     similarity_score: float = Field(ge=0.0, le=1.0)
 
+class NoteListResponse(BaseModel):
+    notes: list[Note]
+    next_cursor: str | None = None
+
 
 class BatchImportRequest(BaseModel):
     notes: list[dict] = Field(min_length=1, max_length=50)

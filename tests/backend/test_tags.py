@@ -50,19 +50,6 @@ async def _create_note(client) -> str:
     return response.json()["id"]
 
 
-async def test_creating_manual_tag_succeeds(client):
-    response = await client.post("/tags", json={"name": "work"})
-    assert response.status_code == 201
-    assert response.json()["tag_type"] == "manual"
-
-
-async def test_creating_automatic_tag_via_api_returns_400(client):
-    response = await client.post(
-        "/tags", json={"name": "auto-tag", "tag_type": "automatic"}
-    )
-    assert response.status_code == 400
-
-
 async def test_tag_list_returns_full_flat_set_hierarchy_reconstructible(client):
     parent = (await client.post("/tags", json={"name": "parent"})).json()
     child_a = (

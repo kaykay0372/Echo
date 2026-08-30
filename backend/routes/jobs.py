@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from backend.dependencies import (
     NotesLimit,
@@ -15,6 +16,15 @@ from backend.dependencies import (
 from backend.schemas.job import Job
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
+
+# Delete a job that is more than 7 days old.
+DELETE_AGE_THRESHOLD = timedelta(days=7)
+
+
+def _parse_created_at(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+        tzinfo=timezone.utc
+    )
 
 
 async def _fetch_job_row(db, job_id: str) -> dict | None:
@@ -76,3 +86,36 @@ async def retry_job(job_id: uuid.UUID, db=Depends(get_db)):
     )
     await db.commit()
     return Job(**await _fetch_job_row(db, job_id))
+
+
+@router.delete(
+    "/{job_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        400: {"model": Error400},
+        404: {"model": Error404},
+        500: {"model": Error500},
+    },
+)
+async def delete_job(job_id: uuid.UUID, db=Depends(get_db)):
+    """Permanently removes a job row."""
+
+    job_id = str(job_id)
+    job_row = await _fetch_job_row(db, job_id)
+    if job_row is None:
+        raise NotFoundError(f"Job {job_id} not found")
+
+    status_value = job_row["status"]
+
+    if status_value == "running":
+        raise ValidationError(f"Job {job_id} is running and cannot be deleted. ")
+
+    if status_value not in ("failed", "discarded"):
+        age = datetime.now(timezone.utc) - _parse_created_at(job_row["created_at"])
+        if age < DELETE_AGE_THRESHOLD:
+            raise ValidationError(
+                f"Job {job_id} is {status_value} and less than 7 days old."
+            )
+
+    await db.execute("DELETE FROM jobs WHERE id = ?", (job_id,))
+    await db.commit()

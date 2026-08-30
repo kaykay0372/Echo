@@ -35,6 +35,7 @@ CREATE TABLE
 CREATE INDEX idx_notes_note_type ON notes (note_type);
 CREATE INDEX idx_notes_is_deleted ON notes (is_deleted);
 CREATE INDEX idx_notes_updated_at ON notes (updated_at);
+CREATE INDEX idx_notes_is_favourite ON notes(is_favourite) WHERE is_favourite = 1;
 
 CREATE TRIGGER trg_notes_updated_at
 AFTER UPDATE ON notes
@@ -66,7 +67,7 @@ CREATE TABLE
     );
 
 CREATE INDEX idx_attachments_note_id ON attachments (note_id);
-CREATE UNIQUE INDEX idx_attachments_content_hash ON attachments (content_hash);
+CREATE UNIQUE INDEX idx_attachments_content_hash ON attachments (content_hash, note_id);
 
 -- ----------------------------------------------------------------------------
 -- jobs (Background job queue)
@@ -151,12 +152,13 @@ CREATE TABLE
         id TEXT PRIMARY KEY, -- UUID
         name TEXT NOT NULL,
         parent_id TEXT,
-        tag_type TEXT NOT NULL CHECK (tag_type IN ('manual', 'automatic')),
         created_at TEXT NOT NULL,
         FOREIGN KEY (parent_id) REFERENCES tags (id) ON DELETE SET NULL
     );
 
 CREATE INDEX idx_tags_parent_id ON tags (parent_id);
+CREATE INDEX idx_tags_name ON tags (name);
+CREATE INDEX idx_tags_created_at ON tags (created_at);
 -- ----------------------------------------------------------------------------
 -- note_tags
 -- Many-to-many join table between notes and tags. Composite PK.

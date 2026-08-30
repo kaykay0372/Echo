@@ -49,11 +49,6 @@ class JobStatus(str, Enum):
     discarded = "discarded"
 
 
-class TagType(str, Enum):
-    manual = "manual"
-    automatic = "automatic"
-
-
 class ElementType(str, Enum):
     shape = "shape"
     arrow = "arrow"
@@ -139,6 +134,8 @@ IncludeDeleted = Annotated[bool, Query()]
 NoteTypeFilter = Annotated[NoteType | None, Query()]
 TagIdFilter = Annotated[str | None, Query()]
 SearchQuery = Annotated[str | None, Query(max_length=200)]
+FavouriteFilter = Annotated[bool | None, Query()]
+DeletedOnly = Annotated[bool, Query()]
 
 
 # FastAPI dependency getters

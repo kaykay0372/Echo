@@ -1,5 +1,6 @@
 import pytest
 
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
@@ -11,6 +12,8 @@ from backend.job_worker import (
     _claim_next_job,
     _load_job_context,
     _run_job,
+    recover_orphaned_jobs,
+    cleanup_old_jobs,
 )
 
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "backend" / "sql_schema.sql"
@@ -288,7 +291,7 @@ def test_job_handlers_registered_for_all_implemented_types():
 
 
 class _FakeChroma:
-    """Minimal fake class for a real ChromaDB collection. """
+    """Minimal fake class for a real ChromaDB collection."""
 
     def __init__(self):
         self.store = {}  # id -> (vector, metadata)
@@ -466,4 +469,354 @@ async def test_mid_flight_deletion_discards_job_result(tmp_path):
         (note_id,),
     )
     assert chained == []
+    await db.close()
+
+
+async def test_mid_flight_cancel_discards_job_result(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db, note_type="text", title="t", body="b")
+
+    class FakeVector:
+        def tolist(self):
+            return [0.0] * 768
+
+    class FakeEmbedder:
+        def encode(self, text):
+            return FakeVector()
+
+    chroma = _FakeChroma()
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            db=db, embedding_model=FakeEmbedder(), chroma_collection=chroma
+        )
+    )
+
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    job = await _claim_next_job(db)  # marks 'running'
+
+    # Simulate a cancel request arriving WHILE this job is still running
+    await db.execute("UPDATE jobs SET status = 'discarded' WHERE id = ?", (job_id,))
+    await db.commit()
+
+    await _run_job(app, job)
+
+    cursor = await db.execute(
+        "SELECT status, error_message, completed_at FROM jobs WHERE id = ?", (job_id,)
+    )
+    status, error_message, completed_at = await cursor.fetchone()
+    assert status == "discarded"
+    assert error_message == "Cancelled while running"
+    assert completed_at is not None
+
+    # No embedding should have been written to Chroma or SQLite
+    assert note_id not in chroma.store
+    cursor = await db.execute(
+        "SELECT embedding_status FROM notes WHERE id = ?", (note_id,)
+    )
+    (embedding_status,) = await cursor.fetchone()
+    assert embedding_status == "pending"
+
+    # No generate_links chaining should have happened
+    chained = await db.execute_fetchall(
+        "SELECT id FROM jobs WHERE note_id = ? AND job_type = 'generate_links'",
+        (note_id,),
+    )
+    assert chained == []
+    await db.close()
+
+
+async def test_cancel_does_not_overwrite_an_existing_error_message(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db, note_type="text", title="t", body="b")
+
+    class FakeVector:
+        def tolist(self):
+            return [0.0] * 768
+
+    class FakeEmbedder:
+        def encode(self, text):
+            return FakeVector()
+
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            db=db, embedding_model=FakeEmbedder(), chroma_collection=_FakeChroma()
+        )
+    )
+
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    job = await _claim_next_job(db)
+
+    await db.execute(
+        "UPDATE jobs SET status = 'discarded', error_message = 'pre-existing note' "
+        "WHERE id = ?",
+        (job_id,),
+    )
+    await db.commit()
+
+    await _run_job(app, job)
+
+    cursor = await db.execute("SELECT error_message FROM jobs WHERE id = ?", (job_id,))
+    (error_message,) = await cursor.fetchone()
+    assert error_message == "pre-existing note"
+    await db.close()
+
+
+async def test_queued_job_never_claimed_after_being_discarded(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db, note_type="text")
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+
+    await db.execute("UPDATE jobs SET status = 'discarded' WHERE id = ?", (job_id,))
+    await db.commit()
+
+    assert await _claim_next_job(db) is None
+    await db.close()
+
+
+async def test_mid_flight_delete_discards_job_result(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db, note_type="text", title="t", body="b")
+
+    class FakeVector:
+        def tolist(self):
+            return [0.0] * 768
+
+    class FakeEmbedder:
+        def encode(self, text):
+            return FakeVector()
+
+    chroma = _FakeChroma()
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            db=db, embedding_model=FakeEmbedder(), chroma_collection=chroma
+        )
+    )
+
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    job = await _claim_next_job(db)  # marks 'running'
+
+    # Simulate the job's row being hard-deleted WHILE it's still running.
+    await db.execute("DELETE FROM jobs WHERE id = ?", (job_id,))
+    await db.commit()
+
+    await _run_job(app, job)
+
+    assert note_id not in chroma.store
+    cursor = await db.execute(
+        "SELECT embedding_status FROM notes WHERE id = ?", (note_id,)
+    )
+    (embedding_status,) = await cursor.fetchone()
+    assert embedding_status == "pending"
+
+    # No generate_links chaining should have happened
+    chained = await db.execute_fetchall(
+        "SELECT id FROM jobs WHERE note_id = ? AND job_type = 'generate_links'",
+        (note_id,),
+    )
+    assert chained == []
+
+    remaining = await db.execute_fetchall("SELECT id FROM jobs WHERE id = ?", (job_id,))
+    assert remaining == []
+    await db.close()
+
+
+async def test_recover_orphaned_jobs_resets_running_to_queued(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    await _claim_next_job(db)  # marks 'running', sets started_at
+
+    recovered_count = await recover_orphaned_jobs(db)
+
+    assert recovered_count == 1
+    cursor = await db.execute(
+        "SELECT status, started_at FROM jobs WHERE id = ?", (job_id,)
+    )
+    status, started_at = await cursor.fetchone()
+    assert status == "queued"
+    assert started_at is None
+    await db.close()
+
+
+async def test_recover_orphaned_jobs_does_not_touch_retry_count(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    await _claim_next_job(db)
+
+    await recover_orphaned_jobs(db)
+
+    cursor = await db.execute("SELECT retry_count FROM jobs WHERE id = ?", (job_id,))
+    (retry_count,) = await cursor.fetchone()
+    assert retry_count == 0
+    await db.close()
+
+
+async def test_recover_orphaned_jobs_leaves_other_statuses_alone(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    queued_id = await _insert_job(db, note_id=note_id, status="queued")
+    failed_id = await _insert_job(db, note_id=note_id, status="failed")
+    complete_id = await _insert_job(db, note_id=note_id, status="complete")
+    discarded_id = await _insert_job(db, note_id=note_id, status="discarded")
+
+    recovered_count = await recover_orphaned_jobs(db)
+
+    assert recovered_count == 0
+    for job_id, expected_status in (
+        (queued_id, "queued"),
+        (failed_id, "failed"),
+        (complete_id, "complete"),
+        (discarded_id, "discarded"),
+    ):
+        cursor = await db.execute("SELECT status FROM jobs WHERE id = ?", (job_id,))
+        (status,) = await cursor.fetchone()
+        assert status == expected_status
+    await db.close()
+
+
+async def test_recover_orphaned_jobs_recovered_job_can_be_claimed_again(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+    await _claim_next_job(db)  # crash here
+
+    await recover_orphaned_jobs(db)
+    claimed = await _claim_next_job(db)
+
+    assert claimed is not None
+    assert claimed["id"] == job_id
+    await db.close()
+
+
+def _recent_timestamp():
+    now = datetime.now(timezone.utc)
+    return now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}Z"
+
+
+def _old_timestamp():
+    old = datetime.now(timezone.utc) - timedelta(days=8)
+    return old.strftime("%Y-%m-%dT%H:%M:%S.") + f"{old.microsecond // 1000:03d}Z"
+
+
+async def test_cleanup_old_jobs_deletes_old_complete_jobs(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(
+        db, note_id=note_id, status="complete", created_at=_old_timestamp()
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 1
+    remaining = await db.execute_fetchall("SELECT id FROM jobs WHERE id = ?", (job_id,))
+    assert remaining == []
+    await db.close()
+
+
+async def test_cleanup_old_jobs_deletes_old_discarded_jobs(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(
+        db, note_id=note_id, status="discarded", created_at=_old_timestamp()
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 1
+    remaining = await db.execute_fetchall("SELECT id FROM jobs WHERE id = ?", (job_id,))
+    assert remaining == []
+    await db.close()
+
+
+async def test_cleanup_old_jobs_leaves_recent_complete_and_discarded_jobs_alone(
+    tmp_path,
+):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    complete_id = await _insert_job(
+        db, note_id=note_id, status="complete", created_at=_recent_timestamp()
+    )
+    discarded_id = await _insert_job(
+        db, note_id=note_id, status="discarded", created_at=_recent_timestamp()
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 0
+    for job_id in (complete_id, discarded_id):
+        remaining = await db.execute_fetchall(
+            "SELECT id FROM jobs WHERE id = ?", (job_id,)
+        )
+        assert remaining != []
+    await db.close()
+
+
+async def test_cleanup_old_jobs_never_deletes_failed_jobs_regardless_of_age(tmp_path):
+    # A failed job needs to stay visible until it has beem retried
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    job_id = await _insert_job(
+        db, note_id=note_id, status="failed", created_at=_old_timestamp()
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 0
+    remaining = await db.execute_fetchall("SELECT id FROM jobs WHERE id = ?", (job_id,))
+    assert remaining != []
+    await db.close()
+
+
+async def test_cleanup_old_jobs_never_deletes_queued_or_running_jobs_regardless_of_age(
+    tmp_path,
+):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    queued_id = await _insert_job(
+        db,
+        note_id=note_id,
+        job_type="embed",
+        status="queued",
+        created_at=_old_timestamp(),
+    )
+    running_id = await _insert_job(
+        db,
+        note_id=note_id,
+        job_type="generate_links",
+        status="running",
+        created_at=_old_timestamp(),
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 0
+    for job_id in (queued_id, running_id):
+        remaining = await db.execute_fetchall(
+            "SELECT id FROM jobs WHERE id = ?", (job_id,)
+        )
+        assert remaining != []
+    await db.close()
+
+
+async def test_cleanup_old_jobs_handles_a_mix_of_eligible_and_ineligible_jobs(tmp_path):
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db)
+    old_complete = await _insert_job(
+        db, note_id=note_id, status="complete", created_at=_old_timestamp()
+    )
+    recent_complete = await _insert_job(
+        db, note_id=note_id, status="complete", created_at=_recent_timestamp()
+    )
+    old_failed = await _insert_job(
+        db, note_id=note_id, status="failed", created_at=_old_timestamp()
+    )
+
+    removed_count = await cleanup_old_jobs(db)
+
+    assert removed_count == 1
+    remaining_ids = {row[0] for row in await db.execute_fetchall("SELECT id FROM jobs")}
+    assert old_complete not in remaining_ids
+    assert recent_complete in remaining_ids
+    assert old_failed in remaining_ids
     await db.close()

@@ -4,6 +4,7 @@
 
 # Silence warnings about missing model files since we're using local cache
 import os
+
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
 from transformers import BlipProcessor, BlipForConditionalGeneration
@@ -23,7 +24,7 @@ if not os.path.exists(IMAGE_FILE):
     sys.exit(1)
 
 img = Image.open(IMAGE_FILE).convert("RGB")
-print(f"Found: {IMAGE_FILE} — size: {img.size[0]}x{img.size[1]} pixels")
+print(f"Found: {IMAGE_FILE} size: {img.size[0]}x{img.size[1]} pixels")
 
 # STEP 2: Load BLIP model
 print("\n STEP 2: Loading BLIP image captioning model ")
@@ -54,7 +55,7 @@ caption = processor.decode(output[0], skip_special_tokens=True)
 caption_time = time.time() - start
 
 print(f"\nCaption generated in {caption_time:.1f} seconds")
-print(f"\nCaption: \"{caption}\"")
+print(f'\nCaption: "{caption}"')
 
 # STEP 4: Generate a conditional caption
 # Prompt the model with a starting phrase. EG: "what creative elements are in this image?"
@@ -65,8 +66,8 @@ inputs_conditional = processor(img, prompt, return_tensors="pt")
 output_conditional = blip_model.generate(**inputs_conditional, max_new_tokens=50)
 caption_conditional = processor.decode(output_conditional[0], skip_special_tokens=True)
 
-print(f"Prompted with: \"{prompt}\"")
-print(f"Result: \"{caption_conditional}\"")
+print(f'Prompted with: "{prompt}"')
+print(f'Result: "{caption_conditional}"')
 
 # STEP 5: Embed the caption
 print(f"\n STEP 5: Embedding the caption (same pipeline as text notes) ")
@@ -74,7 +75,7 @@ print(f"\n STEP 5: Embedding the caption (same pipeline as text notes) ")
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 embedding = embed_model.encode([caption])
 
-print(f"Caption: \"{caption}\"")
+print(f'Caption: "{caption}"')
 print(f"Embedding shape: {embedding.shape}")
 
 # STEP 6: Record findings ───
@@ -83,7 +84,7 @@ print(f"  Image model:         BLIP (blip-image-captioning-base)")
 print(f"  Image file:          {IMAGE_FILE} ({img.size[0]}x{img.size[1]})")
 print(f"  Model load time:     {load_time:.1f}s")
 print(f"  Caption time:        {caption_time:.1f}s")
-print(f"  Generated caption:   \"{caption}\"")
+print(f'  Generated caption:   "{caption}"')
 print(f"  Embedding shape:     {embedding.shape}")
 
 # Test CLIP
