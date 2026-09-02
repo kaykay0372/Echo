@@ -128,7 +128,7 @@ async function mountInto(root) {
 		li.appendChild(info);
 
 		if (job.status === "queued" || job.status === "running") {
-			// Handle discarded jobs by removing them post-completion
+			// "Cancel" maps to "discarding" a job.
 			li.appendChild(
 				actionButton("Cancel", "job-queue-action-cancel", async () => {
 					await withRowDisabled(li, () => discardJob(job.id));
@@ -209,11 +209,11 @@ async function mountInto(root) {
 	async function refresh() {
 		try {
 			// Active + recently-failed jobs only
-			const [active, failed] = await Promise.all([
+			const [active, running, failed] = await Promise.all([
 				getJobQueueStatus({status: "queued", limit: 20}),
+				getJobQueueStatus({status: "running", limit: 20}),
 				getJobQueueStatus({status: "failed", limit: 10}),
 			]);
-			const running = await getJobQueueStatus({status: "running", limit: 20});
 			jobs = [...running, ...active, ...failed];
 		} catch (err) {
 			console.error("job-queue failed to refresh", err);

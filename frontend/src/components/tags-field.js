@@ -78,6 +78,7 @@ export function renderTagsField(container, noteId, initialTags = []) {
 				listbox.appendChild(li);
 			}
 
+			// Only offer tag creation if it doesn't already exist.
 			const exact = allTags.some((t) => t.name.toLowerCase() === q);
 			if (q && !exact) {
 				const li = document.createElement("li");
@@ -127,6 +128,7 @@ export function renderTagsField(container, noteId, initialTags = []) {
 
 		renderOptions("");
 		input.focus();
+		// mousedown (not click) so the popover closes before any click-based interaction elsewhere fires
 		document.addEventListener("mousedown", handleOutsideClick, true);
 	}
 

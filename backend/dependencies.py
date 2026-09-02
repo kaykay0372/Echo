@@ -128,6 +128,9 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 
 # Query parameters
 
+# Shared across modules that score/filter note similarity
+LINK_SIMILARITY_THRESHOLD = 0.5  # UNTUNED
+
 NotesLimit = Annotated[int, Query(ge=1, le=200)]
 ConnectionsLimit = Annotated[int, Query(ge=1, le=50)]
 IncludeDeleted = Annotated[bool, Query()]

@@ -27,11 +27,17 @@ def _parse_created_at(value: str) -> datetime:
     )
 
 
+def _now_iso() -> str:
+    now = datetime.now(timezone.utc)
+    return now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}Z"
+
+
 async def _fetch_job_row(db, job_id: str) -> dict | None:
     cursor = await db.execute("SELECT * FROM jobs WHERE id = ?", (job_id,))
     row = await cursor.fetchone()
     if row is None:
         return None
+    # Only pull the name from the tuple, and not the type
     columns = [d[0] for d in cursor.description]
     return dict(zip(columns, row))
 
@@ -88,6 +94,42 @@ async def retry_job(job_id: uuid.UUID, db=Depends(get_db)):
     return Job(**await _fetch_job_row(db, job_id))
 
 
+@router.post(
+    "/{job_id}/discard",
+    response_model=Job,
+    responses={
+        400: {"model": Error400},
+        404: {"model": Error404},
+        500: {"model": Error500},
+    },
+)
+async def discard_job(job_id: uuid.UUID, db=Depends(get_db)):
+    """Cancels a queued or running job. A running job can't be interrupted mid-computation, so this just flips the status flag, which discards the job after the job has finished running."""
+
+    job_id = str(job_id)
+    job_row = await _fetch_job_row(db, job_id)
+    if job_row is None:
+        raise NotFoundError(f"Job {job_id} not found")
+
+    status_value = job_row["status"]
+    if status_value not in ("queued", "running"):
+        raise ValidationError(
+            f"Job {job_id} is {status_value} and cannot be discarded."
+        )
+
+    if status_value == "queued":
+        # A queued job is never claimed by _claim_next_job once its status changes, so set completed_at for it here.
+        await db.execute(
+            "UPDATE jobs SET status = 'discarded', completed_at = ?, "
+            "error_message = 'Cancelled before running' WHERE id = ?",
+            (_now_iso(), job_id),
+        )
+    else:
+        await db.execute("UPDATE jobs SET status = 'discarded' WHERE id = ?", (job_id,))
+    await db.commit()
+    return Job(**await _fetch_job_row(db, job_id))
+
+
 @router.delete(
     "/{job_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -110,6 +152,7 @@ async def delete_job(job_id: uuid.UUID, db=Depends(get_db)):
     if status_value == "running":
         raise ValidationError(f"Job {job_id} is running and cannot be deleted. ")
 
+    # Failed/discarded jobs can be deleted any time, anything else (queued, complete) needs to have aged past the threshold first, so users can't accidentally wipe out jobs that are still relevant.
     if status_value not in ("failed", "discarded"):
         age = datetime.now(timezone.utc) - _parse_created_at(job_row["created_at"])
         if age < DELETE_AGE_THRESHOLD:

@@ -2,13 +2,13 @@ import aiosqlite
 import asyncio
 import functools
 import uuid
-import pytest
 from datetime import datetime, timedelta, timezone
 
 from PIL import Image
 
+from backend.dependencies import LINK_SIMILARITY_THRESHOLD
+
 POLL_INTERVAL_SECONDS = 2
-LINK_SIMILARITY_THRESHOLD = 0.5  # UNTUNED
 
 
 def _now_iso() -> str:
@@ -90,10 +90,12 @@ async def _run_job(app, job: dict) -> None:
         context = await _load_job_context(db, job)
 
         loop = asyncio.get_running_loop()
+        # Offloads ML models to a worker thread so they don't freeze the asyncio event loop that's also serving API requests.
         result = await loop.run_in_executor(
             None, functools.partial(handler, app, context)
         )
 
+        # Note/job could have changed state while the handler was running in the worker thread
         # If the parent note was soft-deleted while this job was running, discard the result rather than applying it.
         parent_note_id = await _note_id_for_job(db, job)
         if parent_note_id:
@@ -322,6 +324,7 @@ async def _apply_job_result(app, job: dict, result: dict) -> None:
     elif job["job_type"] == "generate_links":
         note_id = result["note_id"]
         for candidate_id, similarity in result["candidates"]:
+            # Ensuring the pair is always stored in the same order regardless of which note initiated the link.
             source, target = sorted([note_id, candidate_id])
             try:
                 await db.execute(

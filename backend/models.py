@@ -7,6 +7,7 @@ HF_CACHE_DIR = CACHE_DIR / "huggingface"
 WHISPER_CACHE_DIR = CACHE_DIR / "whisper"
 
 os.environ["HF_HOME"] = str(HF_CACHE_DIR)
+# Force Hugging Face / transformers to only ever read from the local cache.
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 

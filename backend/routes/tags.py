@@ -38,7 +38,7 @@ async def _fetch_tag_row(db, tag_id: str) -> dict | None:
     responses={400: {"model": Error400}, 500: {"model": Error500}},
 )
 async def create_tag(payload: TagCreate, db=Depends(get_db)):
-    """Creates a new tag and returns it. """
+    """Creates a new tag and returns it."""
 
     tag_id = str(uuid.uuid4())
     now = _now_iso()
@@ -57,11 +57,12 @@ async def list_tags(
     limit: int | None = Query(default=None, ge=1, le=500),
     db=Depends(get_db),
 ):
-    """Flat list of all tags, sorted and optionally limited server-side. """
+    """Flat list of all tags, sorted and optionally limited server-side."""
 
     column = "name" if sort == "name" else "created_at"
     direction = "ASC" if order == "asc" else "DESC"
 
+    # Column/direction are interpolated directly into the SQL string (not parameterised) because SQLite doesn't allow identifiers as bound parameters.
     query = f"SELECT * FROM tags ORDER BY {column} {direction}"
     params = []
     if limit is not None:
@@ -110,6 +111,7 @@ async def update_tag(tag_id: uuid.UUID, payload: TagUpdate, db=Depends(get_db)):
 async def delete_tag(tag_id: uuid.UUID, db=Depends(get_db)):
     """Tag deleted and child tags orphaned to top-level."""
 
+    # DB schema nulls out any child tags' parent_id automatically when this row is deleted. Orphaning isn't directly happening here.
     tag_id = str(tag_id)
     tag_row = await _fetch_tag_row(db, tag_id)
     if tag_row is None:
@@ -151,6 +153,7 @@ async def assign_tag(
     already_assigned = await cursor.fetchone() is not None
 
     if already_assigned:
+        # Route is declared 200 to signal distinction of idempotent semantics.
         response.status_code = status.HTTP_200_OK
         return {"note_id": note_id, "tag_id": payload.tag_id}
 

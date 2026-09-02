@@ -33,6 +33,7 @@ async def _fetch_link_row(db, link_id: str) -> dict | None:
 async def _set_link_status(
     db, link_id: str, new_status: str, set_confirmed_at: bool
 ) -> dict:
+    # confirmed_at should only reflect when a link was actually confirmed.
     if set_confirmed_at:
         await db.execute(
             "UPDATE links SET status = ?, confirmed_at = ? WHERE id = ?",

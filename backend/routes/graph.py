@@ -13,6 +13,7 @@ async def get_graph(db=Depends(get_db)):
     """Retrieves all non-canvas notes and links"""
 
     node_cursor = await db.execute(
+        # Canvas notes aren't embedded, so they can't participate in the similarity graph
         "SELECT id, title, note_type, embedding_status, is_favourite, word_count "
         "FROM notes WHERE is_deleted = 0 AND note_type != 'canvas'"
     )

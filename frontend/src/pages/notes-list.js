@@ -49,6 +49,7 @@ export async function renderNotesList({trashMode = false, tagId = null} = {}) {
 			cursor = nextCursor;
 			loadMoreBtn.hidden = !cursor;
 
+			// Both must be empty to show the "nothing here" message.
 			if (tbody.children.length === 0 && notes.length === 0) {
 				statusEl.textContent = trashMode
 					? "Trash is empty."

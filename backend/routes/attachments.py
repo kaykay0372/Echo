@@ -15,7 +15,7 @@ router = APIRouter(prefix="/attachments", tags=["Attachments"])
     responses={404: {"model": Error404}, 500: {"model": Error500}},
 )
 async def get_attachment_file(attachment_id: uuid.UUID, db=Depends(get_db)):
-    """Serves the raw attachment file. (Unauthenticated) """
+    """Serves the raw attachment file. (Unauthenticated)"""
 
     attachment_id = str(attachment_id)
     cursor = await db.execute(
@@ -30,5 +30,6 @@ async def get_attachment_file(attachment_id: uuid.UUID, db=Depends(get_db)):
         # DB row exists but the file's gone from disk
         raise NotFoundError(f"Attachment {attachment_id}'s file is missing on disk")
 
+    # guess_type returns (type, encoding), we only want the type.
     media_type = mimetypes.guess_type(file_path.name)[0] or "application/octet-stream"
     return FileResponse(file_path, media_type=media_type)

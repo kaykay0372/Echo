@@ -10,7 +10,7 @@ export function registerRoute(pattern, render) {
 				paramNames.push(segment.slice(1));
 				return "([^/]+)";
 			}
-			return segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			return segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // literal segments match verbatim
 		})
 		.join("/");
 
@@ -52,7 +52,7 @@ async function handleHashChange() {
 
 	const cleanup = (await matched.route.render(matched.params)) || null;
 
-	// Discard a stale navigation
+	// A stale result is discarded if another navigation has taken over.
 	if (myToken !== navigationToken) {
 		if (typeof cleanup === "function") cleanup();
 		return;
@@ -62,7 +62,7 @@ async function handleHashChange() {
 }
 
 export function initRouter() {
-	/* Handles rendering of backend routes. */
+	/* Sets up hash-based client-side routing and renders the initial route. */
 	window.addEventListener("hashchange", handleHashChange);
 	handleHashChange(); // handle whatever's already in the URL on load
 }

@@ -437,8 +437,10 @@ describe("renderEditor right panel collapse", () => {
 	});
 });
 
-function fireKeydown({key, ctrlKey = false, metaKey = false} = {}) {
-	document.dispatchEvent(new KeyboardEvent("keydown", {key, ctrlKey, metaKey, bubbles: true, cancelable: true}));
+function fireKeydown({key, ctrlKey = false, metaKey = false, shiftKey = false} = {}) {
+	document.dispatchEvent(
+		new KeyboardEvent("keydown", {key, ctrlKey, metaKey, shiftKey, bubbles: true, cancelable: true}),
+	);
 }
 
 describe("renderEditor Ctrl+S saves immediately, skipping the debounce", () => {
@@ -491,13 +493,13 @@ describe("renderEditor Ctrl+D toggles favourite", () => {
 	});
 });
 
-describe("renderEditor Ctrl+Backspace moves the note to trash", () => {
+describe("renderEditor Ctrl+Shift+Backspace moves the note to trash", () => {
 	it("calls deleteNote and navigates to the notes list", async () => {
 		getNote.mockResolvedValue({id: "n1", title: "", body: ""});
 		deleteNote.mockResolvedValue();
 		await renderEditor({id: "n1"});
 
-		fireKeydown({key: "Backspace", ctrlKey: true});
+		fireKeydown({key: "Backspace", ctrlKey: true, shiftKey: true});
 		await Promise.resolve();
 		await Promise.resolve();
 
@@ -510,7 +512,7 @@ describe("renderEditor Ctrl+Backspace moves the note to trash", () => {
 		deleteNote.mockResolvedValue();
 		const cleanup = await renderEditor({id: "n1"});
 
-		fireKeydown({key: "Backspace", ctrlKey: true});
+		fireKeydown({key: "Backspace", ctrlKey: true, shiftKey: true});
 		await Promise.resolve();
 		await Promise.resolve();
 
@@ -521,8 +523,18 @@ describe("renderEditor Ctrl+Backspace moves the note to trash", () => {
 
 	it("does nothing for a brand-new, unsaved note", async () => {
 		await renderEditor({id: "new"});
+		fireKeydown({key: "Backspace", ctrlKey: true, shiftKey: true});
+		await Promise.resolve();
+		expect(deleteNote).not.toHaveBeenCalled();
+	});
+
+	it("does nothing on plain Ctrl+Backspace without Shift (avoids colliding with the OS delete-word shortcut)", async () => {
+		getNote.mockResolvedValue({id: "n1", title: "", body: ""});
+		await renderEditor({id: "n1"});
+
 		fireKeydown({key: "Backspace", ctrlKey: true});
 		await Promise.resolve();
+
 		expect(deleteNote).not.toHaveBeenCalled();
 	});
 });

@@ -3,7 +3,7 @@ import {getLinkAutoConfirm, setLinkAutoConfirm} from "../utils/link-behaviour.js
 import {mountTemplate} from "../utils/templates.js";
 
 export function renderSettings() {
-	/* Settings page is a single, static template with no dynamic data. (Auto-confirm setting non-functional) */
+	/* Settings page is a single, static template with no dynamic data, aside from the auto-confirm toggle. */
 	const content = document.getElementById("content");
 	setNavCollapsed(false);
 

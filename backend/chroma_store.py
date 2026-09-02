@@ -19,7 +19,9 @@ def init_chroma(path: str = CHROMA_PATH):
 
     client = chromadb.PersistentClient(path=path)
     return client.get_or_create_collection(
-        name=COLLECTION_NAME, metadata={"hnsw:space": "cosine"}
+        # "hnsw:space" sets the distance metric Chroma's index uses for similarity search.
+        name=COLLECTION_NAME,
+        metadata={"hnsw:space": "cosine"},
     )
 
 

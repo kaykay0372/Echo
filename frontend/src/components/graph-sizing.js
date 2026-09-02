@@ -137,7 +137,7 @@ export function wrapTitleLines(title) {
 
 	if ((truncatedByBudget || lostContent) && lines.length > 0) {
 		const lastIndex = lines.length - 1;
-		const maxLastLineLen = LABEL_MAX_CHARS_PER_LINE - 3;
+		const maxLastLineLen = LABEL_MAX_CHARS_PER_LINE - 3; // reserve room for "..."
 		const lastLine = lines[lastIndex].slice(0, Math.max(0, maxLastLineLen));
 		lines[lastIndex] = lastLine + "...";
 	}

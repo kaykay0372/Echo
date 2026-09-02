@@ -45,11 +45,12 @@ export function createCollapsiblePanel({
 	function apply() {
 		const element = panelElement();
 		if (!element) return;
-		const shouldCollapse = forceCollapsed || isNarrow;
-		element.classList.toggle(collapsedClass, shouldCollapse);
-
 		// A manual pin never applies while the window is too narrow
 		const pinned = !isNarrow && readStoredBool(storageKeyPrefix, "pinned", false);
+
+		// A user's pin overrides a page's forceCollapsed request, but never overrides isNarrow.
+		const shouldCollapse = (forceCollapsed && !pinned) || isNarrow;
+		element.classList.toggle(collapsedClass, shouldCollapse);
 		element.classList.toggle(pinnedClass, pinned);
 
 		const btn = toggleElement();

@@ -1,5 +1,5 @@
 import {initTitlebar} from "./components/titlebar.js";
-import {initNav, setNavCollapsed} from "./components/nav.js";
+import {initNav} from "./components/nav.js";
 import {initGlobalShortcuts} from "./utils/keyboard-shortcuts.js";
 import {initSearch} from "./components/search.js";
 import {mountJobQueue} from "./components/job-queue.js";
@@ -71,7 +71,7 @@ async function populateNavData() {
 
 async function fillList(listId, fetchFunc, labelFunc, emptyMessage, hrefFunc) {
 	/* Populates each nav list. */
-	
+
 	const list = document.getElementById(listId);
 	try {
 		const items = await fetchFunc();

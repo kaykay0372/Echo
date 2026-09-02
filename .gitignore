@@ -15,5 +15,4 @@ echo.db-wal
 *.egg-info
 dist/
 build/
-bootstrap.py
 echo-backend.spec

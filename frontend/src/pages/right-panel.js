@@ -42,7 +42,7 @@ export async function renderRightPanel(container, noteId, {onPendingCountChange}
 					}),
 				),
 			);
-			// Re-fetch rather than reclassify
+			// Re-fetch the server state rather than reclassify.
 			[confirmed, pending] = await Promise.all([
 				getNoteLinks(noteId, "confirmed"),
 				getNoteLinks(noteId, "pending_approval"),

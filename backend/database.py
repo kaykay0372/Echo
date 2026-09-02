@@ -12,6 +12,7 @@ async def init_sqlite(
     """This only checks whether the DB file exists, not whether its schema is implemeted correctly."""
 
     already_exists = db_path.exists()
+    # aiosqlite.connect() creates the file if it's missing.
     conn = await aiosqlite.connect(db_path)
     if not already_exists:
         await conn.executescript(schema_path.read_text())

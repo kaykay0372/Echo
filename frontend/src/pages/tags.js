@@ -123,6 +123,7 @@ export async function renderTags() {
 		input.addEventListener("keydown", (e) => {
 			if (e.key === "Enter") input.blur();
 			if (e.key === "Escape") {
+				// Resetting the value before blur since it automatically calls commit()
 				input.value = tag.name;
 				input.blur();
 			}
@@ -131,6 +132,6 @@ export async function renderTags() {
 
 	await refresh();
 
-	// Clean up event listeners
+	// No explicit listener cleanup needed here, keeping consistent style.
 	return () => {};
 }

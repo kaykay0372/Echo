@@ -45,7 +45,6 @@ from backend.schemas.note import (
 router = APIRouter(prefix="/notes", tags=["Notes"])
 
 ATTACHMENTS_DIR = Path("./data/attachments")
-LINK_SIMILARITY_THRESHOLD = 0.5  # Untuned
 
 
 def _now_iso() -> str:
@@ -91,6 +90,7 @@ async def _fetch_tags(db, note_id: str) -> list[dict]:
 async def _to_note_response(db, note_row: dict) -> Note:
     attachments = await _fetch_attachments(db, note_row["id"])
     tags = await _fetch_tags(db, note_row["id"])
+    # SQLite has no native boolean type.
     return Note(
         **{
             **note_row,
@@ -193,11 +193,11 @@ async def list_notes(params: Annotated[NotesListParams, Query()], db=Depends(get
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
     if params.cursor:
+        # The cursor encodes the last row's (updated_at, id) from the previous page, and this tuple comparison fetches only rows that sort after it.
         try:
             cursor_updated_at, cursor_id = params.cursor.split("_", 1)
         except ValueError:
             raise ValidationError("Malformed cursor")
-        conditions.append("(n.updated_at, n.id) < (?, ?)")
         sql_params.extend([cursor_updated_at, cursor_id])
         query += " WHERE " if "WHERE" not in query else " AND "
         query += "(n.updated_at, n.id) < (?, ?)"
@@ -289,7 +289,7 @@ async def update_note(note_id: uuid.UUID, payload: NoteUpdate, db=Depends(get_db
 
     updates = payload.model_dump(exclude_unset=True)
     if not updates:
-        return await _to_note_response(db, note_row)  # No changes
+        return await _to_note_response(db, note_row)
 
     content_changed = "title" in updates or "body" in updates
     set_clauses = []
@@ -440,6 +440,7 @@ async def create_attachment(
             existing_note_id=existing[1],
         )
 
+    # Only image and audio attachments are supported, so anything not detected as an image is assumed to be audio rather than checked explicitly.
     file_type = "image" if (file.content_type or "").startswith("image/") else "audio"
     ATTACHMENTS_DIR.mkdir(parents=True, exist_ok=True)
     attachment_id = _new_id()
@@ -488,8 +489,7 @@ async def _fetch_attachment_row(db, attachment_id: str) -> dict | None:
 async def delete_attachment(
     note_id: uuid.UUID, attachment_id: uuid.UUID, db=Depends(get_db)
 ):
-    """Removes an attachment and its file. Cascades to any queued/running
-    caption/ocr/transcribe job for it via the schema's ON DELETE CASCADE."""
+    """Removes an attachment and its file. Cascades to any queued/running caption/ocr/transcribe job via the schema's ON DELETE CASCADE."""
 
     note_id = str(note_id)
     attachment_id = str(attachment_id)

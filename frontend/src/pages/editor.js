@@ -266,7 +266,7 @@ export async function renderEditor({id} = {}) {
 		} else if (event.key.toLowerCase() === "d") {
 			event.preventDefault();
 			if (!favouriteBtn.disabled) favouriteBtn.click();
-		} else if (event.key === "Backspace") {
+		} else if (event.shiftKey && event.key === "Backspace") {
 			event.preventDefault();
 			if (noteId) {
 				deleteNote(noteId)
@@ -299,6 +299,7 @@ export async function renderEditor({id} = {}) {
 		],
 		content: note.body || "",
 		editorProps: {
+			// TipTap's own link-click-to-open is disabled so that clicking a link inside the editor places the cursor for editing.
 			handleClick(_view, _pos, event) {
 				if (!event.ctrlKey) return false;
 				const anchor = event.target.closest?.("a[href]");
@@ -318,6 +319,7 @@ export async function renderEditor({id} = {}) {
 
 	return function cleanup() {
 		debouncedPersist.cancel();
+		// Flush any unsaved edits on navigating away unless a save is already in flight or the note was just trashed.
 		if (!saveInFlight && !noteTrashed) persist();
 		tiptapEditor.destroy();
 		document.removeEventListener("keydown", handleEditorKeydown);

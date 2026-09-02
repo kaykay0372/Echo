@@ -1,6 +1,6 @@
 const STORAGE_KEY = "echo:linkAutoConfirm";
 
-// Frontend-only display (non-functional yet)
+// Persisted user preference read by right-panel.js's refresh().
 export function getLinkAutoConfirm() {
 	try {
 		return window.localStorage.getItem(STORAGE_KEY) === "true";

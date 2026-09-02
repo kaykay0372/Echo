@@ -48,7 +48,7 @@ async def get_health(
     cursor = await db.execute(
         "SELECT status, COUNT(*) FROM jobs WHERE status IN ('queued', 'failed') GROUP BY status"
     )
-    counts = dict(await cursor.fetchall())
+    counts = dict(await cursor.fetchall())  # rows are (status, count) pairs
     queue = QueueStatus(
         pending_jobs=counts.get("queued", 0), failed_jobs=counts.get("failed", 0)
     )

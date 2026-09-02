@@ -64,6 +64,7 @@ export async function renderGraph() {
 	d3svg.call(zoomBehavior);
 
 	// ! d3-force mutates edge.source/target from plain ids into direct node object references
+	// Anything that needs to compare against plain id strings uses this separate array so it isn't affected by that mutation.
 	const edgesById = edges.map((e) => ({...e}));
 
 	// Must exist before forceCollide() is created below.
@@ -82,6 +83,9 @@ export async function renderGraph() {
 		)
 		.force("charge", d3.forceManyBody().strength(-180))
 		.force("center", d3.forceCenter(width / 2, height / 2))
+		// Pull nodes back once they start drifting outwards.
+		.force("x", d3.forceX(width / 2).strength(0.03))
+		.force("y", d3.forceY(height / 2).strength(0.03))
 		.force(
 			"collide",
 			d3.forceCollide().radius((d) => currentRadii.get(d.id) ?? 12),
@@ -211,6 +215,7 @@ export async function renderGraph() {
 		updateDetailPanel(activeId);
 
 		simulation.force("collide").radius((d) => currentRadii.get(d.id) ?? 12);
+		// Nudge the simulation awake so nodes visually settle into their new boundaries after a focus change.
 		simulation.alpha(0.1).restart();
 	}
 

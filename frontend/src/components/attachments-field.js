@@ -10,6 +10,7 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 		};
 	}
 
+	// This component only manages audio attachments.
 	let attachments = initialAttachments.filter((a) => a.file_type !== "image");
 	let pollHandle = null;
 	let uploading = false;
@@ -49,6 +50,7 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 	}
 
 	function syncPolling() {
+		// Poll for status updates while an attachment is still processing.
 		const anyProcessing = attachments.some(isProcessing);
 		if (anyProcessing && !pollHandle) {
 			pollHandle = setInterval(refresh, POLL_INTERVAL_MS);

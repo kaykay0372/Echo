@@ -19,6 +19,7 @@ async function request(path, options = {}) {
 const MAX_NOTES_LIMIT = 200;
 
 function unwrapNotesResponse(response) {
+	// Runtime shape check since JS has no compile-time typing.
 	if (response && Array.isArray(response.notes)) return response;
 	throw new Error("/notes response shape doesn't match NoteListResponse ");
 }
@@ -219,6 +220,7 @@ export async function searchNotes(query) {
 	const trimmed = (query || "").trim();
 	if (!trimmed) return [];
 
+	// Tag matches are found by fetching the full note list and filtering client-side, then merged with the server-side content matches below.
 	const [contentMatches, allNotes] = await Promise.all([
 		listNotes({search: trimmed, limit: MAX_NOTES_LIMIT}),
 		listNotes({limit: MAX_NOTES_LIMIT}),
@@ -230,6 +232,7 @@ export async function searchNotes(query) {
 	);
 
 	const byId = new Map();
+	// Map dedupes notes that appear in both result sets.
 	for (const note of [...contentMatches, ...tagMatches]) {
 		byId.set(note.id, note);
 	}
