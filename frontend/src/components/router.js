@@ -59,6 +59,9 @@ async function handleHashChange() {
 	}
 
 	currentCleanup = cleanup;
+
+	// Move focus into the new page.
+	document.getElementById("content")?.focus();
 }
 
 export function initRouter() {

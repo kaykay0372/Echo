@@ -1,6 +1,7 @@
 import {listNotesPage, deleteNote, restoreNote, permanentlyDeleteNote, listTags} from "../api/client.js";
 import {setNavCollapsed} from "../components/nav.js";
 import {mountTemplate} from "../utils/templates.js";
+import {createConfirmButton} from "../utils/confirm-button.js";
 
 const PAGE_SIZE = 50;
 
@@ -27,6 +28,20 @@ export async function renderNotesList({trashMode = false, tagId = null} = {}) {
 	const tbody = content.querySelector("tbody");
 	const statusEl = content.querySelector(".notes-list-status");
 	const loadMoreBtn = content.querySelector("#notes-list-load-more");
+	const headingEl = content.querySelector(".notes-list-heading");
+	headingEl.tabIndex = -1;
+
+	// Removes a row and moves focus instead of letting it drop to <body.
+	function removeRowWithFocus(row) {
+		const next = row.nextElementSibling;
+		const prev = row.previousElementSibling;
+		const target =
+			next?.querySelector(".notes-list-actions button:not([disabled])") ??
+			prev?.querySelector(".notes-list-actions button:not([disabled])") ??
+			headingEl;
+		row.remove();
+		target.focus();
+	}
 
 	let cursor = null;
 	let cancelled = false;
@@ -114,7 +129,7 @@ export async function renderNotesList({trashMode = false, tagId = null} = {}) {
 			deleteBtn.disabled = true;
 			try {
 				await deleteNote(note.id);
-				row.remove();
+				removeRowWithFocus(row);
 			} catch (err) {
 				console.error("Delete failed", err);
 				deleteBtn.disabled = false;
@@ -135,7 +150,7 @@ export async function renderNotesList({trashMode = false, tagId = null} = {}) {
 			restoreBtn.disabled = true;
 			try {
 				await restoreNote(note.id);
-				row.remove();
+				removeRowWithFocus(row);
 			} catch (err) {
 				console.error("Restore failed", err);
 				restoreBtn.disabled = false;
@@ -146,36 +161,38 @@ export async function renderNotesList({trashMode = false, tagId = null} = {}) {
 		const deleteBtn = document.createElement("button");
 		deleteBtn.type = "button";
 		deleteBtn.className = "notes-list-action notes-list-action-destructive";
-		deleteBtn.textContent = "Delete forever";
-		let confirming = false;
-		let revertTimer = null;
-		deleteBtn.addEventListener("click", async () => {
-			if (!confirming) {
-				confirming = true;
-				deleteBtn.textContent = "Confirm delete?";
-				revertTimer = setTimeout(() => {
-					confirming = false;
-					deleteBtn.textContent = "Delete forever";
-				}, 4000);
-				return;
-			}
-			clearTimeout(revertTimer);
-			deleteBtn.disabled = true;
-			restoreBtn.disabled = true;
-			try {
-				await permanentlyDeleteNote(note.id);
-				row.remove();
-			} catch (err) {
-				console.error("Permanent delete failed", err);
-				deleteBtn.disabled = false;
-				restoreBtn.disabled = false;
-				confirming = false;
-				deleteBtn.textContent = "Delete forever";
-			}
+
+		const title = note.title || "Untitled";
+		const confirmStatus = document.createElement("span");
+		confirmStatus.className = "visually-hidden";
+		confirmStatus.setAttribute("aria-live", "assertive");
+
+		createConfirmButton({
+			button: deleteBtn,
+			statusEl: confirmStatus,
+			idleText: "Delete forever",
+			armedText: "Confirm delete?",
+			armedLabel: `Confirm permanently deleting "${title}"`,
+			armedMessage: `Permanently delete "${title}"? Press Delete forever again within 4 seconds to confirm.`,
+			revertMessage: `Delete cancelled \u2014 "${title}" was not deleted.`,
+			onConfirm: async () => {
+				deleteBtn.disabled = true;
+				restoreBtn.disabled = true;
+				try {
+					await permanentlyDeleteNote(note.id);
+					removeRowWithFocus(row);
+				} catch (err) {
+					deleteBtn.disabled = false;
+					restoreBtn.disabled = false;
+					throw err;
+				}
+			},
+			onError: (err) => console.error("Permanent delete failed", err),
 		});
 
 		wrap.appendChild(restoreBtn);
 		wrap.appendChild(deleteBtn);
+		wrap.appendChild(confirmStatus);
 		return wrap;
 	}
 

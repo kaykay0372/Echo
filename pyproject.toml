@@ -2,7 +2,7 @@
 name = "Echo"
 version = "1.0.0"
 description = "Local-first, multimodal sematic second brain"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<=3.13"
 dependencies = [
     "fastapi[standard]",
     "pydantic==2.13.4",

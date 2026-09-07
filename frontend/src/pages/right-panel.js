@@ -23,6 +23,8 @@ async function resolveOtherNoteTitles(links, noteId) {
 
 export async function renderRightPanel(container, noteId, {onPendingCountChange} = {}) {
 	container.innerHTML = "";
+	container.setAttribute("aria-live", "polite");
+	container.tabIndex = -1;
 	const loading = document.createElement("p");
 	loading.className = "right-panel-status";
 	loading.textContent = "Loading connections...";
@@ -110,6 +112,17 @@ export async function renderRightPanel(container, noteId, {onPendingCountChange}
 		return section;
 	}
 
+	function refocusPendingList(rowIndex) {
+		const pendingRows = Array.from(container.querySelectorAll(".connections-list-item")).filter((row) =>
+			row.querySelector(".connections-list-action-confirm"),
+		);
+		const target =
+			pendingRows[rowIndex]?.querySelector(".connections-list-action-confirm") ??
+			pendingRows[rowIndex - 1]?.querySelector(".connections-list-action-confirm") ??
+			container;
+		target.focus();
+	}
+
 	function buildLinkItem(link, showActions, titlesById) {
 		const li = document.createElement("li");
 		li.className = "connections-list-item";
@@ -141,9 +154,11 @@ export async function renderRightPanel(container, noteId, {onPendingCountChange}
 			confirmBtn.addEventListener("click", async () => {
 				confirmBtn.disabled = true;
 				rejectBtn.disabled = true;
+				const rowIndex = Array.from(li.parentElement?.children ?? []).indexOf(li);
 				try {
 					await confirmLink(link.id);
 					await refresh();
+					refocusPendingList(rowIndex);
 				} catch (err) {
 					console.error("Confirm failed", err);
 					confirmBtn.disabled = false;
@@ -159,9 +174,11 @@ export async function renderRightPanel(container, noteId, {onPendingCountChange}
 			rejectBtn.addEventListener("click", async () => {
 				confirmBtn.disabled = true;
 				rejectBtn.disabled = true;
+				const rowIndex = Array.from(li.parentElement?.children ?? []).indexOf(li);
 				try {
 					await rejectLink(link.id);
 					await refresh();
+					refocusPendingList(rowIndex);
 				} catch (err) {
 					console.error("Reject failed", err);
 					confirmBtn.disabled = false;

@@ -36,6 +36,7 @@ async function mountInto(root) {
 	panel.hidden = true;
 	panel.setAttribute("role", "region");
 	panel.setAttribute("aria-label", "Job queue details");
+	panel.setAttribute("aria-live", "polite");
 	root.appendChild(panel);
 
 	let jobs = [];
@@ -130,14 +131,14 @@ async function mountInto(root) {
 		if (job.status === "queued" || job.status === "running") {
 			// "Cancel" maps to "discarding" a job.
 			li.appendChild(
-				actionButton("Cancel", "job-queue-action-cancel", async () => {
+				actionButton("Cancel", "job-queue-action-cancel", li, async () => {
 					await withRowDisabled(li, () => discardJob(job.id));
 					await refresh();
 				}),
 			);
 		} else if (job.status === "failed") {
 			li.appendChild(
-				actionButton("Retry", "job-queue-action-retry", async () => {
+				actionButton("Retry", "job-queue-action-retry", li, async () => {
 					await withRowDisabled(li, () => retryJob(job.id));
 					await refresh();
 				}),
@@ -148,14 +149,26 @@ async function mountInto(root) {
 		return li;
 	}
 
-	function actionButton(label, className, onClick) {
+	// Restores focus to the panel position in the rebuilt list instead of <body>.
+	function refocusAfterAction(rowIndex) {
+		const rows = Array.from(panel.querySelectorAll(".job-queue-item"));
+		const target =
+			rows[rowIndex]?.querySelector("button:not([disabled])") ??
+			rows[rowIndex - 1]?.querySelector("button:not([disabled])") ??
+			toggle;
+		target.focus();
+	}
+
+	function actionButton(label, className, row, onClick) {
 		const btn = document.createElement("button");
 		btn.type = "button";
 		btn.className = `job-queue-action ${className}`;
 		btn.textContent = label;
 		btn.addEventListener("click", async () => {
+			const rowIndex = Array.from(row.parentElement?.children ?? []).indexOf(row);
 			try {
 				await onClick();
+				refocusAfterAction(rowIndex);
 			} catch (err) {
 				console.error(`job-queue ${label.toLowerCase()} failed`, err);
 			}
@@ -170,9 +183,11 @@ async function mountInto(root) {
 		btn.textContent = "\u00d7";
 		btn.setAttribute("aria-label", `Delete ${JOB_TYPE_LABELS[job.job_type] || job.job_type} job`);
 		btn.addEventListener("click", async () => {
+			const rowIndex = Array.from(li.parentElement?.children ?? []).indexOf(li);
 			try {
 				await withRowDisabled(li, () => deleteJob(job.id));
 				await refresh();
+				refocusAfterAction(rowIndex);
 			} catch (err) {
 				console.error("job-queue delete failed", err);
 			}

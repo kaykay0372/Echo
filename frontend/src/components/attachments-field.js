@@ -14,6 +14,7 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 	let attachments = initialAttachments.filter((a) => a.file_type !== "image");
 	let pollHandle = null;
 	let uploading = false;
+	let addBtnEl = null;
 
 	function isProcessing(attachment) {
 		return attachment.processing_status !== "complete" && attachment.processing_status !== "failed";
@@ -100,9 +101,18 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 			removeBtn.disabled = true;
 			try {
 				await deleteAttachment(noteId, attachment.id);
+				const removedIndex = attachments.findIndex((a) => a.id === attachment.id);
 				attachments = attachments.filter((a) => a.id !== attachment.id);
 				renderList();
 				syncPolling();
+				// Focus a neighbouring row's Remove button rather than letting focus drop to <body>.
+				const list = container.querySelector(".attachments-field-list");
+				const rows = list ? Array.from(list.children) : [];
+				const target =
+					rows[removedIndex]?.querySelector(".attachments-field-remove") ??
+					rows[removedIndex - 1]?.querySelector(".attachments-field-remove") ??
+					addBtnEl;
+				target?.focus();
 			} catch (err) {
 				console.error("Remove failed", err);
 				removeBtn.disabled = false;
@@ -135,6 +145,7 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 
 		const list = document.createElement("ul");
 		list.className = "attachments-field-list";
+		list.setAttribute("aria-live", "polite");
 		field.appendChild(list);
 
 		const fileInput = document.createElement("input");
@@ -150,9 +161,11 @@ export function renderAttachmentsField(container, noteId, initialAttachments = [
 		addBtn.textContent = "+ Add attachment";
 		addBtn.addEventListener("click", () => fileInput.click());
 		field.appendChild(addBtn);
+		addBtnEl = addBtn;
 
 		const errorEl = document.createElement("p");
 		errorEl.className = "attachments-field-error";
+		errorEl.setAttribute("role", "alert");
 		errorEl.hidden = true;
 		field.appendChild(errorEl);
 

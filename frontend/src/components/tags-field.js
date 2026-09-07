@@ -1,4 +1,5 @@
 import {listTags, createTag, assignTag, removeTag} from "../api/client.js";
+import {createActivedescendantList} from "../utils/activedescendant-list.js";
 
 export function renderTagsField(container, noteId, initialTags = []) {
 	if (!noteId) {
@@ -63,31 +64,51 @@ export function renderTagsField(container, noteId, initialTags = []) {
 			console.error("Failed to load tags", err);
 		}
 
+		function optionEls() {
+			return Array.from(listbox.querySelectorAll('[role="option"]'));
+		}
+
+		function activateOption(index) {
+			optionEls()[index]?.click();
+		}
+
+		const list = createActivedescendantList({
+			input,
+			getOptionEls: optionEls,
+			onActivate: activateOption,
+		});
+
 		function renderOptions(query) {
 			listbox.innerHTML = "";
 			const q = query.trim().toLowerCase();
 			const assignedIds = new Set(tags.map((t) => t.id));
 			const matches = allTags.filter((t) => !assignedIds.has(t.id) && t.name.toLowerCase().includes(q));
 
-			for (const tag of matches) {
+			matches.forEach((tag, i) => {
 				const li = document.createElement("li");
 				li.className = "tags-field-option";
+				li.id = `tags-field-option-${i}`;
 				li.setAttribute("role", "option");
+				li.setAttribute("aria-selected", "false");
 				li.textContent = tag.name;
 				li.addEventListener("click", () => selectExisting(tag));
 				listbox.appendChild(li);
-			}
+			});
 
 			// Only offer tag creation if it doesn't already exist.
 			const exact = allTags.some((t) => t.name.toLowerCase() === q);
 			if (q && !exact) {
 				const li = document.createElement("li");
 				li.className = "tags-field-option tags-field-option-create";
+				li.id = `tags-field-option-${matches.length}`;
 				li.setAttribute("role", "option");
+				li.setAttribute("aria-selected", "false");
 				li.textContent = `Create "${query.trim()}"`;
 				li.addEventListener("click", () => createAndSelect(query.trim()));
 				listbox.appendChild(li);
 			}
+
+			list.setActiveIndex(0);
 		}
 
 		async function selectExisting(tag) {
@@ -116,14 +137,26 @@ export function renderTagsField(container, noteId, initialTags = []) {
 		}
 
 		input.addEventListener("input", () => renderOptions(input.value));
+
+		// Distinguishes a blur caused by clicking an option inside the popoverfrom a blur caused by Tab-ing away, which should close the popover.
+		let mousedownInsidePopover = false;
+		popover.addEventListener("mousedown", () => {
+			mousedownInsidePopover = true;
+		});
+		input.addEventListener("focusout", () => {
+			if (mousedownInsidePopover) {
+				mousedownInsidePopover = false;
+				return;
+			}
+			closePopover({refocusAddBtn: false});
+		});
+
 		input.addEventListener("keydown", (e) => {
 			if (e.key === "Escape") {
 				closePopover();
-			} else if (e.key === "Enter") {
-				e.preventDefault();
-				const firstOption = listbox.querySelector(".tags-field-option");
-				firstOption?.click();
+				return;
 			}
+			list.handleKey(e);
 		});
 
 		renderOptions("");
@@ -154,8 +187,16 @@ export function renderTagsField(container, noteId, initialTags = []) {
 			removeBtn.addEventListener("click", async () => {
 				try {
 					await removeTag(noteId, tag.id);
+					const removedIndex = tags.findIndex((t) => t.id === tag.id);
 					tags = tags.filter((t) => t.id !== tag.id);
 					renderChips();
+					// Focus a neighbouring tag's last button, rather than letting focus drop to <body>.
+					const focusedTag = Array.from(container.querySelectorAll(".tag-chip-remove"));
+					const target =
+						focusedTag[removedIndex] ??
+						focusedTag[removedIndex - 1] ??
+						container.querySelector(".tags-field-add-btn");
+					target?.focus();
 				} catch (err) {
 					console.error("remove failed", err);
 				}

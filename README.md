@@ -28,7 +28,7 @@ Echo/
 From the project root (the folder containing `pyproject.toml`), create and activate an (optional) virtual environment, then install dependencies:
 
 ```bash
-pip install -e
+pip install -e .
 ```
 
 `-e` installs the project in "editable" mode, so any changes you make to the source code are picked up immediately without reinstalling. If you also want to run the test suite:
@@ -40,10 +40,13 @@ pip install -e ".[dev]"
 ### 2. Download the ML models (one-time, requires network)
 
 ```bash
-python data/fetch_models.py
+cd ./data
+python fetch_models.py
 ```
 
 This downloads and caches the embedding, transcription (Whisper), captioning (BLIP), and OCR (Surya) models into `data/model_cache/`. It only needs to be run once and after that, the app runs fully offline.
+
+**Make sure to run this from the /data sub-directory and not the root.**
 
 ### 3. Run the backend
 
@@ -66,6 +69,8 @@ npm run dev
 ```
 
 The dev server runs on `http://localhost:1420`. Which is bundled with the backend by CORS middleware.
+
+Navigate here to run the app.
 
 ## Running the tests
 
