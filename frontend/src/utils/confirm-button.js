@@ -53,5 +53,5 @@ export function createConfirmButton({
 		}
 	});
 
-	return {disarm};
+	return {disarmDelete};
 }
