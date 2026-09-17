@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
+import time
 
 from backend.database import init_sqlite
 from backend.job_worker import (
@@ -249,6 +250,52 @@ async def test_run_job_success_marks_complete(tmp_path):
     embedding_status, embedding_text = await cursor.fetchone()
     assert embedding_status == "complete"
     assert embedding_text == "t b"
+    await db.close()
+
+
+async def test_run_job_completed_at_reflects_handler_duration_not_claim_time(tmp_path):
+    """Regression test for a defect where completed_at was captured once, before the handler ran, and reused for every completion path. """
+
+    db = await _fresh_db(tmp_path)
+    note_id = await _insert_note(db, note_type="text", title="t", body="b")
+    job_id = await _insert_job(db, note_id=note_id, job_type="embed")
+
+    DELAY_S = 0.2
+
+    class SlowFakeVector:
+        def tolist(self):
+            return [0.0] * 768
+
+    class SlowFakeEmbedder:
+        def encode(self, text):
+            time.sleep(DELAY_S)
+            return SlowFakeVector()
+
+    class FakeCollection:
+        def upsert(self, **kwargs):
+            self.last_upsert = kwargs
+
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            db=db,
+            embedding_model=SlowFakeEmbedder(),
+            chroma_collection=FakeCollection(),
+        )
+    )
+
+    job = await _claim_next_job(db)
+    before_handler = datetime.now(timezone.utc)
+    await _run_job(app, job)
+
+    cursor = await db.execute(
+        "SELECT started_at, completed_at FROM jobs WHERE id = ?", (job_id,)
+    )
+    started_at, completed_at = await cursor.fetchone()
+    completed_dt = datetime.strptime(completed_at, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+        tzinfo=timezone.utc
+    )
+
+    assert (completed_dt - before_handler).total_seconds() >= DELAY_S
     await db.close()
 
 

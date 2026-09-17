@@ -16,3 +16,10 @@ echo.db-wal
 dist/
 build/
 echo-backend.spec
+test_assets/
+tests/performance/pipeline_benchmark_log.jsonl
+tests/performance/pipeline_benchmark_summary.json
+tests/performance/data/
+tests/performance/tests/
+tests/performance/load_test_log.jsonl
+tests/performance/load_test_summary.json

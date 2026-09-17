@@ -79,7 +79,6 @@ async def _run_job(app, job: dict) -> None:
 
     db = app.state.db
     handler = JOB_HANDLERS.get(job["job_type"])
-    now = _now_iso()
 
     try:
         if handler is None:
@@ -108,7 +107,7 @@ async def _run_job(app, job: dict) -> None:
                     "UPDATE jobs SET status = 'discarded', completed_at = ?, "
                     "error_message = 'Parent note was soft-deleted while this job was running' "
                     "WHERE id = ?",
-                    (now, job["id"]),
+                    (_now_iso(), job["id"]),
                 )
                 await db.commit()
                 return
@@ -121,7 +120,7 @@ async def _run_job(app, job: dict) -> None:
                 "UPDATE jobs SET completed_at = ?, "
                 "error_message = COALESCE(error_message, 'Cancelled while running') "
                 "WHERE id = ?",
-                (now, job["id"]),
+                (_now_iso(), job["id"]),
             )
             await db.commit()
             return
@@ -130,7 +129,7 @@ async def _run_job(app, job: dict) -> None:
 
         await db.execute(
             "UPDATE jobs SET status = 'complete', completed_at = ? WHERE id = ?",
-            (now, job["id"]),
+            (_now_iso(), job["id"]),
         )
 
         # Completing an embed job automatically enqueues generate_links.
@@ -141,7 +140,7 @@ async def _run_job(app, job: dict) -> None:
         await db.execute(
             "UPDATE jobs SET status = 'failed', completed_at = ?, error_message = ?, "
             "retry_count = retry_count + 1 WHERE id = ?",
-            (now, str(exc), job["id"]),
+            (_now_iso(), str(exc), job["id"]),
         )
     await db.commit()
 

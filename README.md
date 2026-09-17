@@ -1,10 +1,10 @@
 # Echo
 
-Echo is a local-first, multimodal semantic "second brain" note-taking system. It comprises of a FastAPI backend (SQLite + Chroma vector store) with a Tauri/Vite frontend, and runs OCR, image captioning, and audio transcription models locally on your machine. 
+Echo is a local-first, multimodal semantic "second brain" note-taking system. It comprises of a FastAPI backend (SQLite + Chroma vector store) with a HTML/CSS/JavaScript frontend, and runs OCR, image captioning, and audio transcription models locally on your machine. 
 
 ## Prerequisites
 
-- **Python** 3.10, 3.11, or 3.12 (3.13 is not supported by chromadb)
+- **Python** 3.10-3.13 (Higher than that is not supported by chromadb)
 - **Node.js** and npm (for the frontend)
 - **An internet connection for first-time setup** (The app downloads Whisper, BLIP, Surya OCR and a sentence-embedding model which are then cached locally and used offline afterwards)
 
@@ -17,7 +17,7 @@ Echo/
 ├── backend/          # API routes, database, models, job worker
 ├── data/
 │   └── fetch_models.py  # one-time script to download & cache ML models
-├── frontend/          # Vite + Tauri UI
+├── frontend/          # Vite + Vanilla HTML/CSS/JS UI
 └── tests/
 ```
 
