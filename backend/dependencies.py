@@ -9,8 +9,6 @@ from pydantic import BaseModel
 
 class NoteType(str, Enum):
     text = "text"
-    image = "image"
-    audio = "audio"
     canvas = "canvas"
 
 
@@ -129,7 +127,7 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 # Query parameters
 
 # Shared across modules that score/filter note similarity
-LINK_SIMILARITY_THRESHOLD = 0.5  # UNTUNED
+LINK_SIMILARITY_THRESHOLD = 0.3  # UNTUNED
 
 NotesLimit = Annotated[int, Query(ge=1, le=200)]
 ConnectionsLimit = Annotated[int, Query(ge=1, le=50)]
